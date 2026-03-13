@@ -526,6 +526,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             const id = urlParams.get("id");
             const cdn = urlParams.get("cdn");
+            const direct = urlParams.get("direct");
 
             if (!id || !cdn) {
                 displayError("Missing match ID or CDN information in the URL.");
