@@ -809,8 +809,7 @@
 
         if (m3u8) {
             const streamUrl = encodeURIComponent(m3u8[0]);
-            buttons += `<a href="${PLAY_BASE}?direct=${streamUrl}" class="watch-btn text-center text-black font-semibold ${classes}">▶ WATCH</a>`;
-        }
+           buttons += `<a href="${PLAY_BASE}?direct=${encodeURIComponent(streamUrl)}" class="watch-btn text-center text-black font-semibold ${classes}">▶ WATCH</a>`;
     }
 
     return buttons || '<p class="text-slate-400 text-sm">Stream links will appear when available</p>';
