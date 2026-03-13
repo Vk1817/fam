@@ -775,37 +775,46 @@
             return card;
         }
 
-        function generateButtons(match, classes) {
-            const streams = {
-                ...match.STREAMING_CDN,
-                adfree_stream: match.adfree_stream,
-                dai_stream: match.dai_stream
-            };
+       function generateButtons(match, classes) {
+    const streams = {
+        ...match.STREAMING_CDN,
+        adfree_stream: match.adfree_stream,
+        dai_stream: match.dai_stream
+    };
+    
+    let buttons = '';
+    const id = encodeURIComponent(String(match.match_id ?? ''));
+
+    for (const [key, value] of Object.entries(streams)) {
+        if (value && value !== "Unavailable" && key.toLowerCase() !== 'language' && key !== 'Primary_Playback_URL') {
+            let label = key.replace(/_/g, ' ').replace(/(cdn|stream)/i, '').trim();
             
-            let buttons = '';
-            const id = encodeURIComponent(String(match.match_id ?? ''));
-
-            for (const [key, value] of Object.entries(streams)) {
-                // MODIFICATION: Added a check to skip 'Primary_Playback_URL'
-                if (value && value !== "Unavailable" && key.toLowerCase() !== 'language' && key !== 'Primary_Playback_URL') {
-                    let label = key.replace(/_/g, ' ').replace(/(cdn|stream)/i, '').trim();
-                    
-                    // Better label formatting
-                    if (key === 'adfree_stream') label = '🎯 Ad-Free';
-                    else if (key === 'dai_stream') label = '📺 DAI Stream';
-                    else if (key.includes('fancode')) label = '⚡ FanCode';
-                    else if (key.includes('google')) label = '🔴 Google CDN';
-                    else if (key.includes('cloudfront')) label = '☁️ CloudFront';
-                    else if (key.includes('sony')) label = '📡 Sony';
-                    else label = label.toUpperCase() || 'WATCH';
-                    
-                    const href = `${PLAY_BASE}?id=${id}&cdn=${encodeURIComponent(key)}`;
-                    buttons += `<a href="${href}" class="watch-btn text-center text-black font-semibold ${classes}">${label}</a>`;
-                }
-            }
-            return buttons || '<p class="text-slate-400 text-sm">Stream links will appear when available</p>';
+            if (key === 'adfree_stream') label = '🎯 Ad-Free';
+            else if (key === 'dai_stream') label = '📺 DAI Stream';
+            else if (key.includes('fancode')) label = '⚡ FanCode';
+            else if (key.includes('google')) label = '🔴 Google CDN';
+            else if (key.includes('cloudfront')) label = '☁️ CloudFront';
+            else if (key.includes('sony')) label = '📡 Sony';
+            else label = label.toUpperCase() || 'WATCH';
+            
+            const href = `${PLAY_BASE}?id=${id}&cdn=${encodeURIComponent(key)}`;
+            buttons += `<a href="${href}" class="watch-btn text-center text-black font-semibold ${classes}">${label}</a>`;
         }
+    }
 
+    /* NEW FIX FOR auto_streams API */
+    if (!buttons && match.auto_streams && match.auto_streams.length > 0) {
+        const autoText = match.auto_streams[0].auto || "";
+        const m3u8 = autoText.match(/https[^\n]+\.m3u8/);
+
+        if (m3u8) {
+            const streamUrl = encodeURIComponent(m3u8[0]);
+            buttons += `<a href="${PLAY_BASE}?direct=${streamUrl}" class="watch-btn text-center text-black font-semibold ${classes}">▶ WATCH</a>`;
+        }
+    }
+
+    return buttons || '<p class="text-slate-400 text-sm">Stream links will appear when available</p>';
+}
         function initInteractiveEffects() {
             const cards = document.querySelectorAll('.match-card');
             cards.forEach(card => {
