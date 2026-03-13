@@ -528,6 +528,31 @@
             const cdn = urlParams.get("cdn");
             const direct = urlParams.get("direct");
 
+            if (direct) {
+    const streamUrl = decodeURIComponent(direct);
+    const loadingOverlay = document.getElementById('loading-overlay');
+
+    if (streamUrl.includes('.m3u8') && Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(streamUrl);
+        hls.attachMedia(playerElement);
+
+        hls.on(Hls.Events.MANIFEST_PARSED, function () {
+            loadingOverlay.classList.add('hidden');
+            const player = new Plyr(playerElement, { autoplay: true });
+            player.play().catch(()=>{});
+        });
+
+    } else {
+        playerElement.src = streamUrl;
+        loadingOverlay.classList.add('hidden');
+        const player = new Plyr(playerElement, { autoplay: true });
+        player.play().catch(()=>{});
+    }
+
+    return;
+}
+
             if (!id || !cdn) {
                 displayError("Missing match ID or CDN information in the URL.");
                 return;
