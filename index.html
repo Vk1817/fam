@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>CRICKCAST</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
@@ -11,24 +10,24 @@
 <style>
 body{
 background:#02040a;
-font-family:Inter,sans-serif;
 color:white;
+font-family:Arial;
 }
-.match-card{
+.card{
 background:#0f172a;
-border-radius:12px;
+border-radius:10px;
 overflow:hidden;
 transition:.3s;
 }
-.match-card:hover{
-transform:translateY(-4px);
+.card:hover{
+transform:translateY(-5px);
 }
-.watch-btn{
+.watch{
 background:#0ea5e9;
-padding:6px 10px;
+padding:6px 12px;
 border-radius:6px;
 font-size:12px;
-font-weight:600;
+font-weight:bold;
 display:inline-block;
 }
 </style>
@@ -39,19 +38,16 @@ display:inline-block;
 
 <header class="text-center py-10">
 
-<h1 class="text-5xl font-black">CRICKCAST</h1>
-
-<p class="text-slate-400 mt-3">
-Watch FanCode matches free
-</p>
+<h1 class="text-5xl font-bold">CRICKCAST</h1>
+<p class="text-slate-400 mt-2">Watch FanCode matches free</p>
 
 </header>
 
 <main class="max-w-6xl mx-auto px-4">
 
-<div id="matches-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<div id="grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-<div class="h-40 bg-slate-800 animate-pulse rounded"></div>
+<div class="text-center text-slate-400">Loading matches...</div>
 
 </div>
 
@@ -60,26 +56,45 @@ Watch FanCode matches free
 <script>
 
 const DATA_URL =
-"https://cdn.jsdelivr.net/gh/Jitendra-unatti/fancode@main/data/fancode.json";
-
-const PLAY_BASE = "player.html";
-
-const grid = document.getElementById("matches-grid");
+"https://raw.githubusercontent.com/drmlive/fancode-live-events/main/fancode.json";
 
 async function loadMatches(){
 
+const grid=document.getElementById("grid");
+
 try{
 
-const res = await fetch(DATA_URL);
-const data = await res.json();
-
-const matches = data.matches || [];
+const res=await fetch(DATA_URL);
+const data=await res.json();
 
 grid.innerHTML="";
 
-matches.forEach(match=>{
+data.forEach(match=>{
 
-grid.appendChild(createCard(match));
+const card=document.createElement("div");
+
+card.className="card";
+
+card.innerHTML=`
+
+<img src="${match.banner}" class="w-full h-40 object-cover">
+
+<div class="p-4">
+
+<h3 class="font-bold">${match.match_name}</h3>
+
+<p class="text-slate-400 text-sm mt-1">${match.tournament}</p>
+
+<a href="player.html?url=${encodeURIComponent(match.stream_link)}"
+class="watch mt-3 inline-block">
+WATCH
+</a>
+
+</div>
+
+`;
+
+grid.appendChild(card);
 
 });
 
@@ -88,90 +103,6 @@ grid.appendChild(createCard(match));
 grid.innerHTML="<p class='text-red-400'>Failed to load matches</p>";
 
 }
-
-}
-
-function createCard(match){
-
-const card=document.createElement("div");
-
-card.className="match-card";
-
-const img=match.image || "";
-
-const buttons=generateButtons(match);
-
-card.innerHTML=`
-
-<img src="${img}" class="w-full h-40 object-cover">
-
-<div class="p-4">
-
-<p class="text-amber-400 text-xs">${match.tournament || ""}</p>
-
-<h3 class="font-bold mt-1">${match.title || "Match"}</h3>
-
-<div class="mt-3 flex flex-wrap gap-2">
-
-${buttons}
-
-</div>
-
-</div>
-
-`;
-
-return card;
-
-}
-
-function generateButtons(match){
-
-const streams={
-
-...match.STREAMING_CDN,
-
-adfree_stream:match.adfree_stream,
-
-dai_stream:match.dai_stream
-
-};
-
-let buttons="";
-
-const id=encodeURIComponent(match.match_id||"");
-
-for(const[key,value]of Object.entries(streams)){
-
-if(value && value!=="Unavailable" && key!=="Primary_Playback_URL"){
-
-const label=key.replace(/_/g," ").toUpperCase();
-
-const url=`${PLAY_BASE}?id=${id}&cdn=${encodeURIComponent(key)}`;
-
-buttons+=`<a href="${url}" class="watch-btn">${label}</a>`;
-
-}
-
-}
-
-if(!buttons && match.auto_streams){
-
-const autoText=match.auto_streams[0]?.auto || "";
-
-const m3u8=autoText.match(/https[^\n]+\.m3u8/);
-
-if(m3u8){
-
-const streamUrl=encodeURIComponent(m3u8[0]);
-
-buttons+=`<a href="${PLAY_BASE}?direct=${streamUrl}" class="watch-btn">WATCH</a>`;
-
-}
-
-}
-
-return buttons || "<span class='text-slate-500 text-xs'>Stream soon</span>";
 
 }
 
