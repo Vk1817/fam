@@ -1,345 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AkCoder Live Matches</title>
-    
-    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
-    
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #121212;
-            color: #ffffff;
-            margin: 0;
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-            color: #ff5500;
-        }
-        
-        /* Video Player Styles */
-        #player-wrapper {
-            display: none;
-            max-width: 850px;
-            margin: 0 auto 30px auto;
-            background: #000;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
-        #now-playing {
-            padding: 15px;
-            background: #1e1e1e;
-            margin: 0;
-            font-size: 1.2em;
-            text-align: center;
-            border-bottom: 2px solid #ff5500;
-        }
-        
-        /* Default Grid Styles (Vertical) */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-            transition: all 0.3s ease;
-        }
-        
-        /* Horizontal Scroll Styles (Activated when playing) */
-        .grid.horizontal-mode {
-            display: flex;
-            flex-wrap: nowrap;
-            overflow-x: auto;
-            padding-bottom: 15px; /* Space for scrollbar */
-            scroll-behavior: smooth;
-        }
-        .grid.horizontal-mode::-webkit-scrollbar {
-            height: 8px;
-        }
-        .grid.horizontal-mode::-webkit-scrollbar-thumb {
-            background: #ff5500;
-            border-radius: 4px;
-        }
-        .grid.horizontal-mode .card {
-            flex: 0 0 280px; /* Fixed width for horizontal cards */
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        /* Card Styles */
-        .card {
-            background: #1e1e1e;
-            border-radius: 8px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            user-select: none; /* Prevents text selection during long press */
-            -webkit-user-select: none;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 20px rgba(255, 85, 0, 0.3);
-        }
-        .card img {
-            width: 100%;
-            height: 160px;
-            object-fit: cover;
-            pointer-events: none; /* Prevents image drag conflicts */
-        }
-        .card-content {
-            padding: 15px;
-            pointer-events: none;
-        }
-        .status {
-            display: inline-block;
-            background: red;
-            color: white;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 0.8em;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .title {
-            font-size: 1.1em;
-            font-weight: bold;
-            margin: 0 0 5px 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .tournament {
-            color: #aaaaaa;
-            font-size: 0.9em;
-            margin: 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+<title>CRICKCAST</title>
 
-        /* Toast Notification */
-        #toast {
-            visibility: hidden;
-            min-width: 250px;
-            background-color: #4CAF50;
-            color: #fff;
-            text-align: center;
-            border-radius: 8px;
-            padding: 16px;
-            position: fixed;
-            z-index: 1000;
-            left: 50%;
-            bottom: 30px;
-            transform: translateX(-50%);
-            font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            opacity: 0;
-            transition: opacity 0.3s, visibility 0.3s;
-        }
-        #toast.show {
-            visibility: visible;
-            opacity: 1;
-        }
-    </style>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body{
+background:#02040a;
+font-family:Inter,sans-serif;
+color:white;
+}
+.match-card{
+background:#0f172a;
+border-radius:12px;
+overflow:hidden;
+transition:.3s;
+}
+.match-card:hover{
+transform:translateY(-4px);
+}
+.watch-btn{
+background:#0ea5e9;
+padding:6px 10px;
+border-radius:6px;
+font-size:12px;
+font-weight:600;
+display:inline-block;
+}
+</style>
+
 </head>
+
 <body>
 
-    <h1>AkCoder Sports Live</h1>
+<header class="text-center py-10">
 
-    <div id="player-wrapper">
-        <p id="now-playing"></p>
-        <video id="video" controls crossorigin playsinline></video>
-    </div>
+<h1 class="text-5xl font-black">CRICKCAST</h1>
 
-    <div class="grid" id="matches-grid">
-        <p style="text-align: center; grid-column: 1 / -1;">Loading matches...</p>
-    </div>
+<p class="text-slate-400 mt-3">
+Watch FanCode matches free
+</p>
 
-    <div id="toast">Source URL Copied!</div>
+</header>
 
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+<main class="max-w-6xl mx-auto px-4">
 
-    <script>
-        const WORKER_URL = "https://fancod.akcoder777.workers.dev/";
-        let player = null;
-        let hls = null;
+<div id="matches-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-        // Fetch data from Worker
-        async function fetchMatches() {
-            const grid = document.getElementById('matches-grid');
-            try {
-                const response = await fetch(WORKER_URL);
-                if (!response.ok) throw new Error("Network response was not ok");
-                
-                const data = await response.json();
-                const uniqueMatches = deduplicateMatches(data.matches);
-                renderMatches(uniqueMatches);
-            } catch (error) {
-                grid.innerHTML = `<p style="color: #ff4444; text-align: center;">Failed to load matches. Ensure your Worker is active.</p>`;
-                console.error("Error:", error);
-            }
-        }
+<div class="h-40 bg-slate-800 animate-pulse rounded"></div>
 
-        // Deduplication Logic
-        function deduplicateMatches(matchesList) {
-            if (!matchesList) return [];
-            const seenIds = new Set();
-            return matchesList.filter(match => {
-                if (seenIds.has(match.match_id)) return false;
-                seenIds.add(match.match_id);
-                return true;
-            });
-        }
+</div>
 
-        // Extract Highest Quality URL from Playlist Text
-        function extractStreamUrl(playlistText) {
-            const urlRegex = /https:\/\/[^\s]+/g;
-            const urls = playlistText.match(urlRegex);
-            return urls && urls.length > 0 ? urls[urls.length - 1] : null; // Grabs the last URL (usually 1080p)
-        }
+</main>
 
-        // Show Toast Notification
-        function showToast(message) {
-            const toast = document.getElementById("toast");
-            toast.innerText = message;
-            toast.classList.add("show");
-            setTimeout(() => { toast.classList.remove("show"); }, 3000);
-        }
+<script>
 
-        // Render matches to DOM
-        function renderMatches(matches) {
-            const grid = document.getElementById('matches-grid');
-            grid.innerHTML = "";
+const DATA_URL =
+"https://cdn.jsdelivr.net/gh/Jitendra-unatti/fancode@main/data/fancode.json";
 
-            if (matches.length === 0) {
-                grid.innerHTML = `<p style="text-align: center; grid-column: 1 / -1;">No matches available.</p>`;
-                return;
-            }
+const PLAY_BASE = "player.html";
 
-            matches.forEach(match => {
-                if (!match.auto_streams || match.auto_streams.length === 0) return;
+const grid = document.getElementById("matches-grid");
 
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
-                    <img src="${match.image}" alt="${match.title}" loading="lazy">
-                    <div class="card-content">
-                        ${match.status === 'LIVE' ? '<span class="status">LIVE</span>' : ''}
-                        <h3 class="title">${match.title}</h3>
-                        <p class="tournament">${match.tournament}</p>
-                    </div>
-                `;
+async function loadMatches(){
 
-                // Long Press Logic Variables
-                let pressTimer;
-                let isLongPress = false;
+try{
 
-                const startPress = (e) => {
-                    isLongPress = false;
-                    pressTimer = setTimeout(() => {
-                        isLongPress = true;
-                        const rawText = match.auto_streams[0].auto;
-                        const extractedUrl = extractStreamUrl(rawText);
-                        
-                        if (extractedUrl) {
-                            navigator.clipboard.writeText(extractedUrl).then(() => {
-                                showToast("Source URL Copied to Clipboard!");
-                            }).catch(err => {
-                                console.error('Failed to copy text: ', err);
-                                showToast("Failed to copy URL");
-                            });
-                        } else {
-                            showToast("No valid URL found to copy");
-                        }
-                    }, 5000); // 5 seconds hold
-                };
+const res = await fetch(DATA_URL);
+const data = await res.json();
 
-                const cancelPress = () => {
-                    clearTimeout(pressTimer);
-                };
+const matches = data.matches || [];
 
-                // Desktop Events
-                card.addEventListener('mousedown', startPress);
-                card.addEventListener('mouseup', cancelPress);
-                card.addEventListener('mouseleave', cancelPress);
-                
-                // Mobile Touch Events
-                card.addEventListener('touchstart', startPress, {passive: true});
-                card.addEventListener('touchend', cancelPress);
-                card.addEventListener('touchcancel', cancelPress);
+grid.innerHTML="";
 
-                // Play Stream on Click (Only if it wasn't a 5-sec hold)
-                card.addEventListener('click', () => {
-                    if (isLongPress) return; // Prevent playing if the user was just holding to copy
-                    
-                    const rawPlaylist = match.auto_streams[0].auto;
-                    playStream(rawPlaylist, match.title);
-                    
-                    // Switch grid to horizontal mode
-                    document.getElementById('matches-grid').classList.add('horizontal-mode');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                });
+matches.forEach(match=>{
 
-                grid.appendChild(card);
-            });
-        }
+grid.appendChild(createCard(match));
 
-        // Play video with Quality Selection
-        function playStream(m3u8Text, title) {
-            const video = document.getElementById('video');
-            document.getElementById('player-wrapper').style.display = 'block';
-            document.getElementById('now-playing').innerText = `Playing: ${title}`;
+});
 
-            if (hls) { hls.destroy(); }
-            if (player) { player.destroy(); }
+}catch(err){
 
-            const blob = new Blob([m3u8Text], { type: 'application/vnd.apple.mpegurl' });
-            const blobUrl = URL.createObjectURL(blob);
+grid.innerHTML="<p class='text-red-400'>Failed to load matches</p>";
 
-            if (Hls.isSupported()) {
-                hls = new Hls();
-                hls.loadSource(blobUrl);
-                hls.attachMedia(video);
+}
 
-                hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                    const availableQualities = hls.levels.map(l => l.height);
-                    availableQualities.unshift(0); 
+}
 
-                    player = new Plyr(video, {
-                        controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
-                        settings: ['quality'],
-                        quality: {
-                            default: 0,
-                            options: availableQualities,
-                            forced: true,
-                            onChange: (newQuality) => {
-                                if (newQuality === 0) {
-                                    hls.currentLevel = -1;
-                                } else {
-                                    hls.levels.forEach((level, index) => {
-                                        if (level.height === newQuality) {
-                                            hls.currentLevel = index;
-                                        }
-                                    });
-                                }
-                            }
-                        },
-                        i18n: { qualityLabel: { 0: 'Auto' } }
-                    });
+function createCard(match){
 
-                    player.play();
-                });
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = blobUrl;
-                player = new Plyr(video);
-                video.addEventListener('loadedmetadata', () => player.play());
-            }
-        }
+const card=document.createElement("div");
 
-        fetchMatches();
-    </script>
+card.className="match-card";
+
+const img=match.image || "";
+
+const buttons=generateButtons(match);
+
+card.innerHTML=`
+
+<img src="${img}" class="w-full h-40 object-cover">
+
+<div class="p-4">
+
+<p class="text-amber-400 text-xs">${match.tournament || ""}</p>
+
+<h3 class="font-bold mt-1">${match.title || "Match"}</h3>
+
+<div class="mt-3 flex flex-wrap gap-2">
+
+${buttons}
+
+</div>
+
+</div>
+
+`;
+
+return card;
+
+}
+
+function generateButtons(match){
+
+const streams={
+
+...match.STREAMING_CDN,
+
+adfree_stream:match.adfree_stream,
+
+dai_stream:match.dai_stream
+
+};
+
+let buttons="";
+
+const id=encodeURIComponent(match.match_id||"");
+
+for(const[key,value]of Object.entries(streams)){
+
+if(value && value!=="Unavailable" && key!=="Primary_Playback_URL"){
+
+const label=key.replace(/_/g," ").toUpperCase();
+
+const url=`${PLAY_BASE}?id=${id}&cdn=${encodeURIComponent(key)}`;
+
+buttons+=`<a href="${url}" class="watch-btn">${label}</a>`;
+
+}
+
+}
+
+if(!buttons && match.auto_streams){
+
+const autoText=match.auto_streams[0]?.auto || "";
+
+const m3u8=autoText.match(/https[^\n]+\.m3u8/);
+
+if(m3u8){
+
+const streamUrl=encodeURIComponent(m3u8[0]);
+
+buttons+=`<a href="${PLAY_BASE}?direct=${streamUrl}" class="watch-btn">WATCH</a>`;
+
+}
+
+}
+
+return buttons || "<span class='text-slate-500 text-xs'>Stream soon</span>";
+
+}
+
+loadMatches();
+
+setInterval(loadMatches,120000);
+
+</script>
+
 </body>
 </html>
