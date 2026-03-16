@@ -674,5 +674,35 @@ console.log('Stream loaded successfully.');
         console.error('Error initializing player:', error);
       });
     });
+  function showTelegramPopup(){
+
+  const joined = localStorage.getItem("tgJoined");
+
+  if(!joined){
+
+    setTimeout(()=>{
+      document.getElementById("telegramPopup").style.display="block";
+
+      const video = document.getElementById("video");
+      if(video) video.pause();
+
+    },5000);
+
+  }
+
+}
+
+function closePopup(){
+
+  document.getElementById("telegramPopup").style.display="none";
+
+  localStorage.setItem("tgJoined","true");
+
+  const video = document.getElementById("video");
+  if(video) video.play();
+
+}
+
+window.addEventListener("load",showTelegramPopup);
 
 </script>
