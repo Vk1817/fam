@@ -1,137 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
-<title>FanCode Player | Live Streaming</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>Player</title>
+
 <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css"/>
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
 
 <style>
+
 body{
-background:#000;
+background:black;
 margin:0;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-color:white;
-font-family:sans-serif;
 }
+
 video{
 width:100%;
-max-width:1100px;
+height:100vh;
 }
+
 </style>
+
 </head>
 
 <body>
 
 <video id="player" controls playsinline></video>
 
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+
 <script>
 
-const DATA_URL = "https://cdn.jsdelivr.net/gh/Jitendra-unatti/fancode@main/data/fancode.json";
-const video = document.getElementById("player");
+const urlParams=new URLSearchParams(window.location.search);
+const stream=urlParams.get("url");
 
-let hls;
-let player;
-
-function getParam(name){
-const url = new URL(window.location.href);
-return url.searchParams.get(name);
-}
-
-async function startPlayer(){
-
-const direct = getParam("direct");
-const id = getParam("id");
-const cdn = getParam("cdn");
-
-let streamUrl = null;
-
-if(direct){
-
-streamUrl = decodeURIComponent(direct);
-
-}else if(id && cdn){
-
-const res = await fetch(DATA_URL);
-const data = await res.json();
-
-const match = data.matches.find(m => String(m.match_id) === String(id));
-
-if(match){
-
-const sources = {
-...match.STREAMING_CDN,
-adfree_stream: match.adfree_stream,
-dai_stream: match.dai_stream
-};
-
-streamUrl = sources[cdn];
-
-}
-
-}
-
-if(!streamUrl){
-document.body.innerHTML="<h2>Stream unavailable</h2>";
-return;
-}
-
-playStream(streamUrl);
-
-}
-
-function playStream(url){
+const video=document.getElementById("player");
 
 if(Hls.isSupported()){
 
-hls = new Hls({
-enableWorker:true,
-lowLatencyMode:true
-});
+const hls=new Hls();
 
-hls.loadSource(url);
+hls.loadSource(stream);
 hls.attachMedia(video);
 
 hls.on(Hls.Events.MANIFEST_PARSED,function(){
 
-player = new Plyr(video,{
-controls:[
-'play-large',
-'play',
-'progress',
-'current-time',
-'mute',
-'volume',
-'settings',
-'fullscreen'
-]
-});
-
+const player=new Plyr(video);
 player.play();
 
 });
 
-}else if(video.canPlayType("application/vnd.apple.mpegurl")){
+}else{
 
-video.src=url;
-
-player=new Plyr(video);
-
-video.addEventListener("loadedmetadata",()=>{
-player.play();
-});
+video.src=stream;
+const player=new Plyr(video);
 
 }
-
-}
-
-startPlayer();
 
 </script>
 
