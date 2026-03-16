@@ -67,8 +67,6 @@ grid.innerHTML="";
 
 data.matches.forEach(match=>{
 
-/* extract real stream */
-
 let streamUrl="";
 
 if(match.auto_streams && match.auto_streams.length>0){
@@ -81,15 +79,16 @@ if(found) streamUrl = found[0];
 
 }
 
-/* create card */
-
 const card=document.createElement("div");
 
 card.className="card";
 
 card.innerHTML=`
 
-<img src="${match.thumbnail || ''}" class="w-full h-40 object-cover">
+<img 
+src="${match.thumbnail || 'https://fancode.com/skillup-uploads/cms-media/Cricket_Fallback_Old_match-card.jpg'}"
+onerror="this.src='https://fancode.com/skillup-uploads/cms-media/Cricket_Fallback_Old_match-card.jpg'"
+class="w-full h-40 object-cover">
 
 <div class="p-4">
 
