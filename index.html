@@ -75,17 +75,23 @@ const card=document.createElement("div");
 
 card.className="card";
 
+/* extract stream from auto_streams */
+
+const rawPlaylist = match.auto_streams?.[0]?.auto || "";
+const m3u8Match = rawPlaylist.match(/https:\/\/[^\s]+\.m3u8/);
+const streamUrl = m3u8Match ? m3u8Match[0] : "";
+
 card.innerHTML=`
 
-<img src="${match.banner}" class="w-full h-40 object-cover">
+<img src="${match.image || ''}" class="w-full h-40 object-cover">
 
 <div class="p-4">
 
 <h3 class="font-bold">${match.match_name}</h3>
 
-<p class="text-slate-400 text-sm mt-1">${match.tournament}</p>
+<p class="text-slate-400 text-sm mt-1">${match.event_name || ""}</p>
 
-<a href="player.html?url=${encodeURIComponent(match.stream_link)}"
+<a href="player.html?url=${encodeURIComponent(streamUrl)}"
 class="watch mt-3 inline-block">
 WATCH
 </a>
