@@ -123,25 +123,25 @@
 existing css.....
 
 .instagram-float{
-  position:fixed;
-  bottom:25px;
-  right:25px;
-  width:55px;
-  height:55px;
-  background:linear-gradient(45deg,#f58529,#dd2a7b,#8134af,#515bd4);
-  color:white;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:26px;
-  z-index:9999;
-  box-shadow:0 8px 20px rgba(0,0,0,0.4);
-  transition:0.3s;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 55px;
+  height: 55px;
+  background: linear-gradient(45deg,#f58529,#dd2a7b,#8134af,#515bd4);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  z-index: 999999;   /* ensures it stays above everything */
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
 }
 
 .instagram-float:hover{
-  transform:scale(1.1);
+  transform: scale(1.1);
 }
   </style>
 </head>
@@ -316,10 +316,12 @@ existing css.....
       if (e.target === modal) closeModal();
     };
   </script>
-  <a href="https://www.instagram.com/crickcast.live?igsh=MTZ3ZmtqdDZwdHYzbA==" 
+ <a href="https://www.instagram.com/crickcast.live?igsh=MTZ3ZmtqdDZwdHYzbA==" 
    target="_blank"
    class="instagram-float">
-   <i class="fab fa-instagram"></i>
+
+<i class="fab fa-instagram"></i>
+
 </a>
 </body>
 </html>
