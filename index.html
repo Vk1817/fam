@@ -119,25 +119,25 @@
     .quality-sleek-btn:hover { background: #253b62; border-color: #3b82f6; transform: scale(1.02); box-shadow: 0 8px 14px -8px #0a1a31; }
     .close-sleek { color: #fca5a5; font-weight: 700; cursor: pointer; margin-top: 1.2rem; display: inline-block; border-bottom: 2px dotted #f87171; font-size: 0.9rem; }
     .grid-sleek { gap: 2rem; }
-    <style>
-existing css.....
+   
 
 .instagram-float{
   position: fixed;
-  bottom: 80px;
+  bottom: 95px;      /* place above telegram button */
   right: 20px;
   width: 55px;
   height: 55px;
-  background: linear-gradient(45deg,#f58529,#dd2a7b,#8134af,#515bd4);
-  color: white;
   border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 26px;
-  z-index: 999999;   /* ensures it stays above everything */
-  cursor: pointer;
+  color: white;
+  z-index: 99999;
   box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+  cursor: pointer;
+  transition: 0.3s;
 }
 
 .instagram-float:hover{
