@@ -37,18 +37,14 @@ display:inline-block;
 <body>
 
 <header class="text-center py-10">
-
 <h1 class="text-5xl font-bold">CRICKCAST</h1>
 <p class="text-slate-400 mt-2">Watch FanCode matches free</p>
-
 </header>
 
 <main class="max-w-6xl mx-auto px-4">
 
 <div id="grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-
 <div class="text-center text-slate-400">Loading matches...</div>
-
 </div>
 
 </main>
@@ -71,25 +67,35 @@ grid.innerHTML="";
 
 data.matches.forEach(match=>{
 
+/* extract real stream */
+
+let streamUrl="";
+
+if(match.auto_streams && match.auto_streams.length>0){
+
+const raw = match.auto_streams[0].auto || "";
+
+const found = raw.match(/https:\/\/[^\s]+\.m3u8/);
+
+if(found) streamUrl = found[0];
+
+}
+
+/* create card */
+
 const card=document.createElement("div");
 
 card.className="card";
 
-/* extract stream from auto_streams */
-
-const rawPlaylist = match.auto_streams?.[0]?.auto || "";
-const m3u8Match = rawPlaylist.match(/https:\/\/[^\s]+\.m3u8/);
-const streamUrl = m3u8Match ? m3u8Match[0] : "";
-
 card.innerHTML=`
 
-<img src="${match.image || ''}" class="w-full h-40 object-cover">
+<img src="${match.thumbnail || ''}" class="w-full h-40 object-cover">
 
 <div class="p-4">
 
-<h3 class="font-bold">${match.match_name}</h3>
+<h3 class="font-bold">${match.match_name || ''}</h3>
 
-<p class="text-slate-400 text-sm mt-1">${match.event_name || ""}</p>
+<p class="text-slate-400 text-sm mt-1">${match.event_name || ''}</p>
 
 <a href="player.html?url=${encodeURIComponent(streamUrl)}"
 class="watch mt-3 inline-block">
