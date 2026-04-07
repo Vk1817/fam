@@ -756,6 +756,211 @@ nav {
      ══════════════════════════════════════════ -->
 <script>
 /* KEEP YOUR ORIGINAL JS HERE EXACTLY (NO CHANGE) */
+
+  
+const AP="https://a7.akcoder777.workers.dev/fc";
+let M=[],ft='all',pi=0;
+
+function pd(s){
+  try{
+    const p=s.replace(/\s+/g,' ').trim().split(' ');
+    const m={January:0,February:1,March:2,April:3,May:4,June:5,July:6,August:7,September:8,October:9,November:10,December:11};
+    let h=parseInt(p[3])||0,min=parseInt(p[4])||0;
+    if(p[5]==='PM'&&h!==12)h+=12;
+    if(p[5]==='AM'&&h===12)h=0;
+    return new Date(p[2],m[p[1]],p[0],h,min).getTime();
+  }catch(e){return Date.now()+3600000;}
+}
+
+function fd(ts){
+  if(!ts)return 'TBA';
+  const d=new Date(ts);
+  if(d.toString()==='Invalid Date')return 'TBA';
+  const opt={month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'};
+  return d.toLocaleString('en-US',opt);
+}
+
+function nm(d){
+  let a=[];
+  (d.matches||[]).forEach(m=>{
+    let r={};
+    if(m.all_resolutions)
+      Object.keys(m.all_resolutions).forEach(x=>{
+        if(m.all_resolutions[x]?.includes('.m3u8'))
+          r[x]=m.all_resolutions[x];
+      });
+
+    const isLive=['live','LIVE','started','STARTED'].includes(m.type||m.status);
+
+    a.push({
+      id:m.match_id||Math.random(),
+      t:m.match,
+      tr:m.tournament,
+      c:m.category,
+      l:m.language,
+      img:m.image,
+      li:isLive,
+      en:!isLive,
+      u:m.stream_url||r['1080p']||r['720p']||'',
+      r:r,
+      tm:pd(m.startTime)
+    });
+  });
+
+  (d.upcoming_matches||[]).forEach(m=>{
+    a.push({
+      id:m.match_id||Math.random(),
+      t:m.match,
+      tr:m.tournament,
+      c:m.category,
+      l:m.language,
+      img:m.image,
+      li:false,
+      en:false,
+      u:'',
+      r:{},
+      tm:pd(m.startTime)
+    });
+  });
+
+  return a.sort((a,b)=>(b.li?1:0)-(a.li?1:0)||a.tm-b.tm);
+}
+
+function rn(){
+  const f=ft==='all'?M:M.filter(m=>m.c?.toLowerCase()===ft.toLowerCase());
+
+  document.getElementById('g').innerHTML=!f.length
+  ? `<div class="empty-state"><i class="fas fa-inbox"></i>No matches available</div>`
+  : f.map(m=>{
+    const badgeText=m.li?'LIVE':m.en?'ENDED':'UPCOMING';
+    const badgeClass=m.li?'badge-live':m.en?'badge-ended':'badge-up';
+
+    return `
+    <div class="card" onclick="pl(${M.indexOf(m)})">
+      <div class="card-thumb">
+        <img src="${m.img||'https://via.placeholder.com/300x180'}">
+
+        <div class="card-sport-strip">${m.c||'SPORT'}</div>
+
+        <div class="badge ${badgeClass}">${badgeText}</div>
+
+        <div class="card-play-overlay">
+          <div class="play-circle">
+            <i class="fas fa-play"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-info">
+        <div class="card-title">${m.t}</div>
+
+        <div class="card-meta">
+          <i class="fas fa-trophy"></i>${m.tr||'Tournament'}
+        </div>
+
+        <div class="card-time">
+          <span class="card-time-label">
+            <i class="fas fa-clock"></i>${fd(m.tm)}
+          </span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function pl(i){
+  if(M[i].en){alert('Match Ended');return;}
+  if(!M[i].li){alert('Starts: '+fd(M[i].tm));return;}
+
+  if(Object.keys(M[i].r).length>1) sq(i);
+  else if(M[i].u) ps(M[i],M[i].u);
+  else alert('No stream');
+}
+
+function sq(i){
+  const rs=Object.keys(M[i].r).sort((a,b)=>parseInt(b)-parseInt(a));
+
+  document.getElementById('ql').innerHTML=rs.map(r=>
+    `<button onclick="ps(M[${i}],M[${i}].r['${r}']);cm()">${r}</button>`
+  ).join('');
+
+  document.getElementById('qm').classList.add('active');
+}
+
+async function ps(m,u){
+  if(!u)return;
+
+  document.getElementById('pt').innerText=m.t;
+  document.getElementById('p').classList.add('active');
+
+  const v=document.getElementById('v');
+  v.currentTime=0;
+
+  try{
+    if(!pi){
+      window.player=new Plyr('#v');
+      pi=1;
+    }
+
+    v.src=u;
+    v.type='application/x-mpegURL';
+    await v.load();
+
+    setTimeout(()=>{
+      v.play().catch(()=>{
+        v.muted=true;
+        v.play();
+      });
+    },100);
+
+  }catch(e){
+    v.src=u;
+    v.type='application/x-mpegURL';
+    v.play().catch(()=>{
+      v.muted=true;
+      v.play();
+    });
+  }
+}
+
+function f(t,b){
+  ft=t;
+  document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  rn();
+}
+
+function cm(){
+  document.getElementById('qm').classList.remove('active');
+}
+
+function cp(){
+  document.getElementById('p').classList.remove('active');
+
+  const v=document.getElementById('v');
+  v.pause();
+  v.currentTime=0;
+  v.src='';
+
+  if(window.player){
+    try{window.player.destroy();}catch(e){}
+    pi=0;
+  }
+}
+
+async function ld(){
+  try{
+    const r=await fetch(AP);
+    const d=await r.json();
+    M=nm(d);
+    rn();
+  }catch(e){
+    document.getElementById('g').innerHTML='Load Error';
+  }
+}
+
+ld();
+
 </script>
 
 </body>
