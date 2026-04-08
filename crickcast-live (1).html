@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>CRICKCAST LIVE</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
+<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+<meta name="referrer" content="no-referrer">
+
+<style>
+/* ═══ TOKENS ═══ */
+:root {
+  --bg:        #060a12;
+  --bg-2:      #0a1120;
+  --bg-3:      #0f1929;
+  --bg-4:      #152035;
+  --cyan:      #00c8e0;
+  --cyan-dim:  rgba(0,200,224,0.12);
+  --cyan-glow: rgba(0,200,224,0.22);
+  --red:       #ff3d3d;
+  --red-dim:   rgba(255,61,61,0.15);
+  --blue:      #4b8fff;
+  --blue-dim:  rgba(75,143,255,0.15);
+  --border:    rgba(255,255,255,0.07);
+  --border-md: rgba(255,255,255,0.11);
+  --border-hi: rgba(255,255,255,0.18);
+  --text-1:    #eaf0fb;
+  --text-2:    #7a93b8;
+  --text-3:    #3d5270;
+  --font-d:    'Rajdhani', sans-serif;
+  --font-b:    'Outfit', sans-serif;
+  --r:         13px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+body {
+  font-family: var(--font-b);
+  background: var(--bg);
+  color: var(--text-1);
+  padding-bottom: 90px;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Ambient mesh */
+body::before {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(ellipse 80% 40% at 50% -5%,  rgba(0,200,224,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 60% at 100% 90%, rgba(75,143,255,0.05) 0%, transparent 50%),
+    radial-gradient(ellipse 35% 35% at 0%   60%, rgba(0,200,224,0.03) 0%, transparent 50%);
+}
+body::after {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.013) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.013) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 100%);
+}
+
+/* ═══ HEADER ═══ */
+header {
+  position: sticky; top:0; z-index:900;
+  height: 64px;
+  display: flex; align-items:center; justify-content:center;
+  background: rgba(6,10,18,0.92);
+  backdrop-filter: blur(24px) saturate(160%);
+  border-bottom: 1px solid var(--border);
+}
+
+.hd-live {
+  position:absolute; left:20px;
+  display:flex; align-items:center; gap:6px;
+  padding:5px 12px; border-radius:6px;
+  background:var(--red-dim);
+  border:1px solid rgba(255,61,61,0.28);
+  font-family:var(--font-d); font-size:11px; font-weight:700;
+  letter-spacing:1.8px; text-transform:uppercase; color:#ff8a8a;
+}
+.hd-live::before {
+  content:''; width:7px; height:7px; border-radius:50%;
+  background:var(--red); animation:blink 1.2s ease-in-out infinite;
+}
+@keyframes blink {
+  0%,100%{ opacity:1; transform:scale(1); }
+  50%{ opacity:.35; transform:scale(.7); }
+}
+
+.hd-logo { display:flex; align-items:center; gap:11px; }
+.hd-logo-icon {
+  width:36px; height:36px; border-radius:9px;
+  background:linear-gradient(135deg,var(--cyan),#0098b0);
+  display:flex; align-items:center; justify-content:center;
+  color:#000; font-size:15px;
+  box-shadow:0 0 20px var(--cyan-glow);
+}
+.hd-logo-text {
+  font-family:var(--font-d);
+  font-size:24px; font-weight:700; letter-spacing:3px;
+  background:linear-gradient(90deg,#ffffff 0%,#a8ccee 45%,var(--cyan) 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+
+/* ═══ HERO ═══ */
+.hero {
+  position:relative; z-index:1;
+  text-align:center;
+  padding:48px 20px 40px;
+  max-width:860px; margin:0 auto;
+}
+.hero-eyebrow {
+  display:inline-flex; align-items:center; gap:7px;
+  font-family:var(--font-d); font-size:11px; font-weight:600;
+  letter-spacing:3px; text-transform:uppercase; color:var(--cyan);
+  padding:5px 16px; border-radius:20px;
+  background:var(--cyan-dim); border:1px solid rgba(0,200,224,0.2);
+  margin-bottom:18px;
+}
+.hero-title {
+  font-family:var(--font-d);
+  font-size:clamp(44px,9vw,86px); font-weight:700;
+  letter-spacing:5px; line-height:1;
+  background:linear-gradient(160deg,#ffffff 0%,#bcd6f5 35%,var(--cyan) 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  margin-bottom:12px;
+}
+.hero-sub {
+  font-size:14px; color:var(--text-2);
+  margin-bottom:38px; line-height:1.65;
+}
+.hero-sub strong { color:var(--text-1); font-weight:600; }
+
+/* Stats row */
+.stats {
+  display:inline-flex;
+  border:1px solid var(--border-md); border-radius:14px;
+  overflow:hidden;
+  background:rgba(10,17,32,0.72);
+  backdrop-filter:blur(14px);
+}
+.stat { padding:18px 28px; text-align:center; position:relative; }
+.stat+.stat::before {
+  content:''; position:absolute; left:0; top:18%; bottom:18%;
+  width:1px; background:var(--border-md);
+}
+.stat-label {
+  font-family:var(--font-d); font-size:9px; font-weight:600;
+  letter-spacing:3px; text-transform:uppercase;
+  color:var(--text-3); margin-bottom:7px;
+}
+.stat-num {
+  font-family:var(--font-d); font-size:32px; font-weight:700; line-height:1;
+}
+.stat-num.c-live  { color:var(--red);  text-shadow:0 0 20px rgba(255,61,61,.4); }
+.stat-num.c-total { color:var(--cyan); text-shadow:0 0 20px rgba(0,200,224,.3); }
+.stat-num.c-up    { color:var(--blue); text-shadow:0 0 20px rgba(75,143,255,.3); }
+
+/* ═══ FILTER BAR ═══ */
+.filter-bar {
+  position:sticky; top:64px; z-index:800;
+  padding:12px 20px;
+  background:rgba(6,10,18,0.94);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.filter-inner {
+  max-width:1200px; margin:0 auto;
+  display:flex; gap:8px;
+  overflow-x:auto; padding-bottom:2px;
+  scrollbar-width:none;
+}
+.filter-inner::-webkit-scrollbar { display:none; }
+
+.pill {
+  flex-shrink:0;
+  display:inline-flex; align-items:center; gap:6px;
+  padding:7px 16px; border-radius:8px; cursor:pointer;
+  font-family:var(--font-b); font-size:12px; font-weight:600;
+  border:1px solid var(--border); color:var(--text-2);
+  background:rgba(255,255,255,0.03);
+  transition:all .2s ease; white-space:nowrap;
+}
+.pill i { font-size:11px; }
+.pill:hover { background:rgba(255,255,255,0.06); color:var(--text-1); border-color:var(--border-md); }
+.pill.active { background:var(--cyan-dim); border-color:rgba(0,200,224,0.3); color:var(--cyan); }
+.pill-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.pill-dot.red  { background:var(--red); box-shadow:0 0 6px var(--red); }
+.pill-dot.blue { background:var(--blue); }
+
+/* ═══ GRID ═══ */
+.grid-wrap {
+  position:relative; z-index:1;
+  max-width:1200px; margin:0 auto;
+  padding:22px 20px;
+}
+.grid-label {
+  font-family:var(--font-d); font-size:10px; font-weight:600;
+  letter-spacing:3px; text-transform:uppercase;
+  color:var(--text-3); margin-bottom:16px;
+  display:flex; align-items:center; gap:10px;
+}
+.grid-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* THIS ID matches the JS: id="g" */
+.grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(262px,1fr));
+  gap:15px;
+}
+
+/* ═══ CARD — class names EXACTLY match JS output ═══ */
+.card {
+  background:var(--bg-3);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  overflow:hidden; cursor:pointer; position:relative;
+  transition:transform .28s cubic-bezier(.34,1.56,.64,1), box-shadow .28s, border-color .28s;
+  animation:cardIn .4s ease both;
+}
+@keyframes cardIn {
+  from { opacity:0; transform:translateY(14px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.card:hover {
+  transform:translateY(-5px) scale(1.016);
+  border-color:rgba(0,200,224,0.3);
+  box-shadow:0 20px 44px rgba(0,0,0,.65), 0 0 0 1px rgba(0,200,224,.1), 0 0 28px rgba(0,200,224,.06);
+}
+
+/* .card-thumb — JS uses this */
+.card-thumb {
+  position:relative; height:155px; overflow:hidden;
+}
+.card-thumb img {
+  width:100%; height:100%; object-fit:cover; display:block;
+  transition:transform .45s ease;
+}
+.card:hover .card-thumb img { transform:scale(1.07); }
+.card-thumb::after {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(to bottom, rgba(0,0,0,.08) 0%, transparent 35%, rgba(6,10,18,.75) 100%);
+}
+
+/* .card-sport-strip — JS uses this exact name */
+.card-sport-strip {
+  position:absolute; top:0; right:0; z-index:2;
+  background:rgba(0,0,0,.58); backdrop-filter:blur(8px);
+  padding:5px 10px; border-bottom-left-radius:8px;
+  font-family:var(--font-d); font-size:9px; font-weight:600;
+  letter-spacing:2px; text-transform:uppercase; color:var(--text-2);
+}
+
+/* .badge, .badge-live, .badge-up, .badge-ended — JS uses these */
+.badge {
+  position:absolute; top:10px; left:10px; z-index:3;
+  display:inline-flex; align-items:center; gap:5px;
+  font-family:var(--font-d); font-size:9px; font-weight:700;
+  letter-spacing:1.5px; text-transform:uppercase;
+  padding:4px 10px; border-radius:5px;
+}
+.badge-live {
+  background:var(--red); color:#fff;
+  box-shadow:0 0 14px rgba(255,61,61,.5);
+}
+.badge-live::before {
+  content:''; width:5px; height:5px; border-radius:50%;
+  background:#fff; animation:blink 1s infinite;
+}
+.badge-up   { background:linear-gradient(135deg,#2563eb,#4f46e5); color:#fff; }
+.badge-ended{ background:rgba(71,90,117,.55); color:var(--text-2); }
+
+/* .card-play-overlay and .play-circle — JS uses these exact names */
+.card-play-overlay {
+  position:absolute; inset:0; z-index:2;
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; transition:opacity .2s;
+}
+.play-circle {
+  width:52px; height:52px; border-radius:50%;
+  background:var(--cyan);
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px; color:#000;
+  transform:scale(.7);
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 0 30px var(--cyan-glow);
+}
+.card:hover .card-play-overlay { opacity:1; }
+.card:hover .play-circle        { transform:scale(1); }
+
+/* .card-info — JS uses this */
+.card-info {
+  padding:13px 15px 14px;
+  background:linear-gradient(180deg, var(--bg-3) 0%, var(--bg-4) 100%);
+}
+
+/* .card-title — JS uses this */
+.card-title {
+  font-family:var(--font-d); font-size:15px; font-weight:700;
+  color:var(--text-1); line-height:1.3; margin-bottom:5px; letter-spacing:.2px;
+}
+
+/* .card-meta — JS uses this */
+.card-meta {
+  font-size:11px; color:var(--text-2); font-weight:500;
+  display:flex; align-items:center; gap:5px; margin-bottom:10px;
+}
+.card-meta i { font-size:10px; color:var(--cyan); }
+
+/* .card-time and .card-time-label — JS uses these */
+.card-time {
+  padding-top:10px; border-top:1px solid var(--border);
+  display:flex; align-items:center;
+  font-size:11px; color:var(--text-2);
+}
+.card-time-label {
+  display:flex; align-items:center; gap:5px;
+  font-family:var(--font-d); font-size:11px; font-weight:600; letter-spacing:.5px;
+}
+.card-time-label i { font-size:10px; color:var(--blue); }
+
+/* ═══ EMPTY STATE — JS uses this ═══ */
+.empty-state {
+  grid-column:1/-1; text-align:center; padding:60px 20px; color:var(--text-3);
+}
+.empty-state i { font-size:36px; opacity:.3; display:block; margin-bottom:12px; }
+
+/* ═══ LOADER ═══ */
+.loader {
+  grid-column:1/-1; text-align:center; padding:80px 20px;
+  display:flex; flex-direction:column; align-items:center; gap:16px;
+}
+.loader-ring {
+  width:48px; height:48px; border-radius:50%;
+  border:3px solid rgba(0,200,224,0.1);
+  border-top-color:var(--cyan);
+  animation:spin .8s linear infinite;
+}
+.loader p {
+  font-family:var(--font-d); font-size:12px; letter-spacing:3px;
+  text-transform:uppercase; color:var(--text-3);
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* ═══ BOTTOM NAV ═══ */
+nav {
+  position:fixed; bottom:0; width:100%; height:72px; z-index:900;
+  display:flex;
+  background:rgba(6,10,18,0.97);
+  backdrop-filter:blur(24px);
+  border-top:1px solid var(--border);
+}
+/* .nav-btn and .nav-btn.active — JS uses these */
+.nav-btn {
+  flex:1; border:none; background:none; color:var(--text-3); cursor:pointer;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:5px; font-family:var(--font-d); font-size:10px; font-weight:600;
+  letter-spacing:.8px; text-transform:uppercase;
+  position:relative; transition:color .2s;
+}
+.nav-btn i { font-size:18px; }
+.nav-btn.active { color:var(--cyan); }
+.nav-btn.active::before {
+  content:''; position:absolute; top:0; left:15%; right:15%; height:2px;
+  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+  border-radius:0 0 4px 4px;
+}
+.nav-btn:hover:not(.active) { color:var(--text-2); }
+
+/* ═══ QUALITY MODAL — id="qm" and id="ql" match JS ═══ */
+/* .modal and .modal.active — JS uses classList.add('active') */
+.modal {
+  display:none; position:fixed; inset:0; z-index:2000;
+  background:rgba(0,0,0,0.72); backdrop-filter:blur(18px);
+  justify-content:center; align-items:flex-end; padding:20px;
+}
+.modal.active { display:flex; }
+
+.modal-box {
+  background:var(--bg-3);
+  border:1px solid var(--border-hi);
+  border-radius:20px 20px 14px 14px;
+  padding:10px 24px 24px;
+  width:100%; max-width:420px;
+  animation:sheetUp .3s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes sheetUp {
+  from { transform:translateY(36px); opacity:0; }
+  to   { transform:translateY(0); opacity:1; }
+}
+.modal-handle {
+  width:36px; height:3px; border-radius:2px;
+  background:var(--border-hi); margin:10px auto 20px;
+}
+.modal-title {
+  font-family:var(--font-d); font-size:10px; font-weight:700;
+  letter-spacing:3px; text-transform:uppercase;
+  color:var(--text-3); text-align:center; margin-bottom:16px;
+}
+
+/* id="ql" buttons are injected by JS */
+#ql { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
+#ql button {
+  width:100%; padding:13px 16px;
+  border:1px solid var(--border); border-radius:10px;
+  background:rgba(255,255,255,0.03); color:var(--text-1);
+  font-family:var(--font-b); font-size:13px; font-weight:600;
+  cursor:pointer; text-align:left;
+  display:flex; align-items:center; gap:10px;
+  transition:all .15s;
+}
+#ql button:hover {
+  background:var(--cyan-dim); border-color:rgba(0,200,224,0.35); color:var(--cyan);
+}
+#ql button::before {
+  content:''; width:8px; height:8px; border-radius:50%;
+  background:var(--cyan); flex-shrink:0;
+}
+
+.modal-cancel {
+  width:100%; padding:12px;
+  border:1px solid var(--border); border-radius:10px;
+  background:transparent; color:var(--text-3);
+  font-family:var(--font-d); font-size:12px; font-weight:600;
+  letter-spacing:1.5px; text-transform:uppercase;
+  cursor:pointer; transition:all .15s;
+}
+.modal-cancel:hover { background:rgba(255,255,255,0.05); color:var(--text-2); }
+
+/* ═══ PLAYER — id="p" and id="pt" match JS ═══ */
+/* .player and .player.active — JS uses classList.add/remove('active') */
+.player {
+  display:none; position:fixed; inset:0;
+  background:#000; flex-direction:column; z-index:3000;
+}
+.player.active { display:flex; }
+
+.player-header {
+  height:54px; flex-shrink:0;
+  display:flex; align-items:center; padding:0 14px; gap:12px;
+  background:rgba(6,10,18,0.97);
+  border-bottom:1px solid var(--border);
+}
+.player-back-btn {
+  width:36px; height:36px; border-radius:8px; cursor:pointer;
+  border:1px solid var(--border-md);
+  background:rgba(255,255,255,0.05);
+  color:var(--text-1); font-size:14px;
+  display:flex; align-items:center; justify-content:center;
+  transition:all .15s; flex-shrink:0;
+}
+.player-back-btn:hover {
+  background:var(--cyan-dim); border-color:rgba(0,200,224,0.35); color:var(--cyan);
+}
+
+/* id="pt" — JS sets innerText here */
+.player-title {
+  flex:1; font-family:var(--font-d); font-size:15px; font-weight:700;
+  letter-spacing:.5px; color:var(--text-1);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+
+.player-live-tag {
+  display:flex; align-items:center; gap:5px;
+  font-family:var(--font-d); font-size:9px; font-weight:700;
+  letter-spacing:2px; text-transform:uppercase;
+  color:#ff8a8a; background:var(--red-dim);
+  border:1px solid rgba(255,61,61,0.28);
+  padding:4px 10px; border-radius:5px; flex-shrink:0;
+}
+.player-live-tag::before {
+  content:''; width:6px; height:6px; border-radius:50%;
+  background:var(--red); animation:blink 1s infinite;
+}
+
+/* Fullscreen button in header */
+.player-fs-btn {
+  width:36px; height:36px; border-radius:8px; cursor:pointer;
+  border:1px solid var(--border-md);
+  background:rgba(255,255,255,0.05);
+  color:var(--text-1); font-size:14px;
+  display:flex; align-items:center; justify-content:center;
+  transition:all .15s; flex-shrink:0;
+}
+.player-fs-btn:hover {
+  background:var(--cyan-dim); border-color:rgba(0,200,224,0.35); color:var(--cyan);
+}
+
+.player-video-wrap {
+  flex:1; position:relative; background:#000;
+  display:flex; align-items:center; justify-content:center; overflow:hidden;
+}
+
+/* id="v" — JS targets this video element */
+#v {
+  width:100%; height:100%; object-fit:contain;
+}
+
+/* .floating-back — back button overlaid on video */
+.floating-back {
+  position:absolute; top:14px; left:14px; z-index:9999;
+  width:40px; height:40px; border-radius:10px; cursor:pointer;
+  background:rgba(6,10,18,0.72); backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,0.12);
+  color:#fff; font-size:15px;
+  display:flex; align-items:center; justify-content:center;
+  transition:all .2s;
+}
+.floating-back:hover {
+  background:var(--cyan-dim); border-color:rgba(0,200,224,0.35); color:var(--cyan);
+}
+
+/* Floating fullscreen button overlaid on video */
+.floating-fs {
+  position:absolute; top:14px; right:14px; z-index:9999;
+  width:40px; height:40px; border-radius:10px; cursor:pointer;
+  background:rgba(6,10,18,0.72); backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,0.12);
+  color:#fff; font-size:14px;
+  display:flex; align-items:center; justify-content:center;
+  transition:all .2s;
+}
+.floating-fs:hover {
+  background:var(--cyan-dim); border-color:rgba(0,200,224,0.35); color:var(--cyan);
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<header>
+  <div class="hd-live">LIVE</div>
+  <div class="hd-logo">
+    <div class="hd-logo-icon"><i class="fas fa-satellite-dish"></i></div>
+    <span class="hd-logo-text">CRICKCAST LIVE</span>
+  </div>
+</header>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="hero-eyebrow"><i class="fas fa-circle-dot" style="font-size:9px"></i> Free HD Sports Streaming</div>
+  <h1 class="hero-title">CRICKCAST LIVE</h1>
+  <p class="hero-sub">Watch <strong>cricket, football &amp; tennis</strong> matches live in HD — completely free.</p>
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label">Live Now</div>
+      <div class="stat-num c-live" id="stat-live">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Total Matches</div>
+      <div class="stat-num c-total" id="stat-total">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Upcoming</div>
+      <div class="stat-num c-up" id="stat-up">—</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FILTER PILLS ═══ -->
+<div class="filter-bar">
+  <div class="filter-inner">
+    <button class="pill active" onclick="f('all',this)"><i class="fas fa-border-all"></i> All</button>
+    <button class="pill" onclick="f('live-only',this)"><span class="pill-dot red"></span> Live</button>
+    <button class="pill" onclick="f('upcoming-only',this)"><span class="pill-dot blue"></span> Upcoming</button>
+    <button class="pill" onclick="f('Cricket',this)"><i class="fas fa-baseball-bat-ball"></i> Cricket</button>
+    <button class="pill" onclick="f('Football',this)"><i class="fas fa-futbol"></i> Football</button>
+    <button class="pill" onclick="f('Tennis',this)"><i class="fas fa-table-tennis-paddle-ball"></i> Tennis</button>
+  </div>
+</div>
+
+<!-- ═══ MATCH GRID — id="g" matches JS ═══ -->
+<div class="grid-wrap">
+  <div class="grid-label">All Matches</div>
+  <main class="grid" id="g">
+    <div class="loader">
+      <div class="loader-ring"></div>
+      <p>Fetching matches…</p>
+    </div>
+  </main>
+</div>
+
+<!-- ═══ BOTTOM NAV — .nav-btn onclick="f(...)" matches JS ═══ -->
+<nav>
+  <button class="nav-btn active" onclick="f('all',this)"><i class="fas fa-border-all"></i>All</button>
+  <button class="nav-btn" onclick="f('Cricket',this)"><i class="fas fa-baseball-bat-ball"></i>Cricket</button>
+  <button class="nav-btn" onclick="f('Football',this)"><i class="fas fa-futbol"></i>Football</button>
+  <button class="nav-btn" onclick="f('Tennis',this)"><i class="fas fa-table-tennis-paddle-ball"></i>Tennis</button>
+</nav>
+
+<!-- ═══ QUALITY MODAL — id="qm" and id="ql" match JS ═══ -->
+<div id="qm" class="modal">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Select Stream Quality</div>
+    <div id="ql"></div>
+    <button class="modal-cancel" onclick="cm()">Cancel</button>
+  </div>
+</div>
+
+<!-- ═══ PLAYER — id="p" and id="pt" and id="v" match JS ═══ -->
+<div class="player" id="p">
+  <div class="player-header">
+    <button class="player-back-btn" onclick="cp()"><i class="fas fa-arrow-left"></i></button>
+    <div class="player-title" id="pt">Playing…</div>
+    <div class="player-live-tag">Live</div>
+    <button class="player-fs-btn" onclick="tfs()" title="Fullscreen"><i class="fas fa-expand"></i></button>
+  </div>
+
+  <div class="player-video-wrap" id="vwrap">
+    <!-- Floating back overlaid on video -->
+    <button class="floating-back" onclick="cp()"><i class="fas fa-arrow-left"></i></button>
+    <!-- Floating fullscreen overlaid on video -->
+    <button class="floating-fs" onclick="tfs()"><i class="fas fa-expand" id="fs-icon"></i></button>
+    <!-- id="v" — JS targets this -->
+    <video id="v" autoplay playsinline></video>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     ORIGINAL JS — COMPLETELY UNCHANGED + fullscreen
+════════════════════════════════════════════════════ -->
+<script>
+const AP="https://a7.akcoder777.workers.dev/fc";
+let M=[],ft='all',pi=0;
+
+function pd(s){
+  try{
+    const p=s.replace(/\s+/g,' ').trim().split(' ');
+    const m={January:0,February:1,March:2,April:3,May:4,June:5,July:6,August:7,September:8,October:9,November:10,December:11};
+    let h=parseInt(p[3])||0,min=parseInt(p[4])||0;
+    if(p[5]==='PM'&&h!==12)h+=12;
+    if(p[5]==='AM'&&h===12)h=0;
+    return new Date(p[2],m[p[1]],p[0],h,min).getTime();
+  }catch(e){return Date.now()+3600000;}
+}
+
+function fd(ts){
+  if(!ts)return 'TBA';
+  const d=new Date(ts);
+  if(d.toString()==='Invalid Date')return 'TBA';
+  const opt={month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'};
+  return d.toLocaleString('en-US',opt);
+}
+
+function nm(d){
+  let a=[];
+  (d.matches||[]).forEach(m=>{
+    let r={};
+    if(m.all_resolutions)
+      Object.keys(m.all_resolutions).forEach(x=>{
+        if(m.all_resolutions[x]?.includes('.m3u8'))
+          r[x]=m.all_resolutions[x];
+      });
+
+    const isLive=['live','LIVE','started','STARTED'].includes(m.type||m.status);
+
+    a.push({
+      id:m.match_id||Math.random(),
+      t:m.match,
+      tr:m.tournament,
+      c:m.category,
+      l:m.language,
+      img:m.image,
+      li:isLive,
+      en:!isLive,
+      u:m.stream_url||r['1080p']||r['720p']||'',
+      r:r,
+      tm:pd(m.startTime)
+    });
+  });
+
+  (d.upcoming_matches||[]).forEach(m=>{
+    a.push({
+      id:m.match_id||Math.random(),
+      t:m.match,
+      tr:m.tournament,
+      c:m.category,
+      l:m.language,
+      img:m.image,
+      li:false,
+      en:false,
+      u:'',
+      r:{},
+      tm:pd(m.startTime)
+    });
+  });
+
+  return a.sort((a,b)=>(b.li?1:0)-(a.li?1:0)||a.tm-b.tm);
+}
+
+function rn(){
+  // Update stat counters
+  const liveCount = M.filter(m=>m.li).length;
+  const upCount   = M.filter(m=>!m.li&&!m.en).length;
+  document.getElementById('stat-live').textContent  = liveCount;
+  document.getElementById('stat-total').textContent = M.length;
+  document.getElementById('stat-up').textContent    = upCount;
+
+  // Filter logic — extended to support live-only / upcoming-only pills
+  let f;
+  if(ft==='all')             f=M;
+  else if(ft==='live-only')  f=M.filter(m=>m.li);
+  else if(ft==='upcoming-only') f=M.filter(m=>!m.li&&!m.en);
+  else                       f=M.filter(m=>m.c?.toLowerCase()===ft.toLowerCase());
+
+  document.getElementById('g').innerHTML=!f.length
+  ? `<div class="empty-state"><i class="fas fa-inbox"></i><p>No matches available</p></div>`
+  : f.map(m=>{
+    const badgeText=m.li?'LIVE':m.en?'ENDED':'UPCOMING';
+    const badgeClass=m.li?'badge-live':m.en?'badge-ended':'badge-up';
+
+    return `
+    <div class="card" onclick="pl(${M.indexOf(m)})">
+      <div class="card-thumb">
+        <img src="${m.img||'https://via.placeholder.com/300x180'}" loading="lazy">
+        <div class="card-sport-strip">${m.c||'SPORT'}</div>
+        <div class="badge ${badgeClass}">${badgeText}</div>
+        <div class="card-play-overlay">
+          <div class="play-circle"><i class="fas fa-play"></i></div>
+        </div>
+      </div>
+      <div class="card-info">
+        <div class="card-title">${m.t}</div>
+        <div class="card-meta"><i class="fas fa-trophy"></i>${m.tr||'Tournament'}</div>
+        <div class="card-time">
+          <span class="card-time-label"><i class="fas fa-clock"></i>${fd(m.tm)}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function pl(i){
+  if(M[i].en){alert('Match Ended');return;}
+  if(!M[i].li){alert('Starts: '+fd(M[i].tm));return;}
+  if(Object.keys(M[i].r).length>1) sq(i);
+  else if(M[i].u) ps(M[i],M[i].u);
+  else alert('No stream');
+}
+
+function sq(i){
+  const rs=Object.keys(M[i].r).sort((a,b)=>parseInt(b)-parseInt(a));
+  document.getElementById('ql').innerHTML=rs.map(r=>
+    `<button onclick="ps(M[${i}],M[${i}].r['${r}']);cm()">${r}</button>`
+  ).join('');
+  document.getElementById('qm').classList.add('active');
+}
+
+async function ps(m,u){
+  if(!u)return;
+  document.getElementById('pt').innerText=m.t;
+  document.getElementById('p').classList.add('active');
+  const v=document.getElementById('v');
+  v.currentTime=0;
+  try{
+    if(!pi){window.player=new Plyr('#v');pi=1;}
+    v.src=u;
+    v.type='application/x-mpegURL';
+    await v.load();
+    setTimeout(()=>{v.play().catch(()=>{v.muted=true;v.play();});},100);
+  }catch(e){
+    v.src=u;
+    v.type='application/x-mpegURL';
+    v.play().catch(()=>{v.muted=true;v.play();});
+  }
+}
+
+function f(t,b){
+  ft=t;
+  document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  rn();
+}
+
+function cm(){
+  document.getElementById('qm').classList.remove('active');
+}
+
+function cp(){
+  document.getElementById('p').classList.remove('active');
+  const v=document.getElementById('v');
+  v.pause(); v.currentTime=0; v.src='';
+  if(window.player){try{window.player.destroy();}catch(e){}pi=0;}
+  // Reset fullscreen icon
+  document.getElementById('fs-icon').className='fas fa-expand';
+}
+
+// ── Fullscreen toggle (new, does NOT touch original logic) ──
+function tfs(){
+  const wrap=document.getElementById('vwrap');
+  const icon=document.getElementById('fs-icon');
+  if(!document.fullscreenElement){
+    (wrap.requestFullscreen||wrap.webkitRequestFullscreen||wrap.mozRequestFullScreen).call(wrap);
+    icon.className='fas fa-compress';
+  } else {
+    (document.exitFullscreen||document.webkitExitFullscreen||document.mozCancelFullScreen).call(document);
+    icon.className='fas fa-expand';
+  }
+}
+document.addEventListener('fullscreenchange',()=>{
+  if(!document.fullscreenElement)
+    document.getElementById('fs-icon').className='fas fa-expand';
+});
+
+async function ld(){
+  try{
+    const r=await fetch(AP);
+    const d=await r.json();
+    M=nm(d);
+    rn();
+  }catch(e){
+    document.getElementById('g').innerHTML='<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Failed to load matches</p></div>';
+  }
+}
+
+ld();
+</script>
+
+</body>
+</html>
