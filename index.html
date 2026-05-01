@@ -261,65 +261,116 @@ nav{position:fixed;bottom:0;width:100%;height:72px;z-index:900;display:flex;
 
 <script>
 // ─────────────────────────────────────────────────────────
-// DATA SOURCES — jsDelivr CDN mirror first, raw GitHub fallback
+// DATA SOURCES — drmlive/fancode-live-events
+// jsDelivr CDN mirror first (no CORS), raw GitHub as fallback
 // ─────────────────────────────────────────────────────────
 const SOURCES = [
-  "https://cdn.jsdelivr.net/gh/sportlive18/Fancode-Playlist-Autoupdate@main/fancode.json",
-  "https://raw.githubusercontent.com/sportlive18/Fancode-Playlist-Autoupdate/main/fancode.json"
+  "https://cdn.jsdelivr.net/gh/drmlive/fancode-live-events@main/fancode.json",
+  "https://raw.githubusercontent.com/drmlive/fancode-live-events/main/fancode.json"
 ];
 
 let M = [], ft = 'all', hlsInst = null;
 
 // ─────────────────────────────────────────────────────────
-// PARSE — handles both byte-capsule schema and DOCTOR_STRANGE schema
-// byte-capsule:  matches[].match_name / .event_catagory / .team_1_flag / .stream_link
-// DOCTOR_STRANGE: matches[].title / .category / teams[].logo / .stream_link / .status
+// PARSE — drmlive/fancode-live-events schema
+//
+// Top-level keys observed:
+//   live_events[]   — currently live matches
+//   upcoming_events[] — scheduled matches
+//
+// Each event object:
+//   .title / .name / .match_name      → match title
+//   .tournament / .event_name         → tournament name
+//   .category / .sport / .event_catagory → sport category
+//   .src / .image / .banner / .thumbnail → banner image (may be nested: {src:""})
+//   .dai_url    → Google DAI HLS (has ads, always works)
+//   .adfree_url → Direct FanCode CDN HLS (ad-free, prefer this)
+//   .stream_link / .hls_link          → generic fallback
+//   .startTime / .start_time          → ISO timestamp
+//   .teams[] or .team_1_flag/.team_2_flag → team logos
+//
+// The drmlive repo uses both live_events[] AND matches[] keys depending on version,
+// so we check all possible top-level arrays.
 // ─────────────────────────────────────────────────────────
 function parseJSON(d) {
   const arr = [];
 
   function add(m, isLive) {
-    // title
-    const t   = m.match_name || m.title || m.match || 'Unknown Match';
-    // tournament
-    const tr  = m.event_name || m.tournament || m.short_name || '';
-    // category — byte-capsule spells it "event_catagory" (typo)
-    const cat = m.event_catagory || m.category || 'Sport';
-    // banner/image
-    const img = m.banner || m.image || '';
-    // stream URL — primary field
-    const url = m.stream_link || m.hls_link || '';
-    // resolutions (only in DOCTOR_STRANGE schema)
-    const res = m.all_resolutions || {};
-    // teams
+    // ── title ──────────────────────────────────────────
+    const t = m.title || m.name || m.match_name || m.match || 'Unknown Match';
+
+    // ── tournament ─────────────────────────────────────
+    const tr = m.tournament || m.event_name || m.short_name || m.league || '';
+
+    // ── category ───────────────────────────────────────
+    const cat = m.category || m.sport || m.event_catagory || m.event_category || 'Sport';
+
+    // ── image ──────────────────────────────────────────
+    // drmlive stores image as { src: "url" } OR as a plain string
+    let img = '';
+    if (m.src) {
+      img = typeof m.src === 'object' ? (m.src.src || m.src.url || '') : m.src;
+    }
+    img = img || m.image || m.banner || m.thumbnail || m.poster || '';
+
+    // ── stream URLs ────────────────────────────────────
+    // Prefer adfree_url (direct CDN), then dai_url, then generic fields
+    const adfree = m.adfree_url || m.ad_free_url || '';
+    const dai    = m.dai_url    || m.dai_stream   || '';
+    const generic= m.stream_link|| m.hls_link     || m.url || '';
+    // Primary = adfree (best), secondary = dai, tertiary = generic
+    const primaryUrl = adfree || dai || generic;
+
+    // Build resolution map so quality picker works
+    const streams = {};
+    if (adfree) streams['Ad-Free'] = adfree;
+    if (dai)    streams['DAI']     = dai;
+    if (generic && generic !== adfree && generic !== dai) streams['Auto'] = generic;
+
+    // ── teams ──────────────────────────────────────────
     let teams = [];
     if (Array.isArray(m.teams) && m.teams.length >= 2) {
-      teams = [{ logo: m.teams[0].logo || m.teams[0].flag || '' },
-               { logo: m.teams[1].logo || m.teams[1].flag || '' }];
+      teams = [
+        { logo: m.teams[0].logo || m.teams[0].flag || m.teams[0].image || '' },
+        { logo: m.teams[1].logo || m.teams[1].flag || m.teams[1].image || '' }
+      ];
     } else {
-      if (m.team_1_flag || m.team_1_logo) teams.push({ logo: m.team_1_flag || m.team_1_logo || '' });
-      if (m.team_2_flag || m.team_2_logo) teams.push({ logo: m.team_2_flag || m.team_2_logo || '' });
+      const f1 = m.team_1_flag || m.team1_logo || m.home_logo || '';
+      const f2 = m.team_2_flag || m.team2_logo || m.away_logo || '';
+      if (f1) teams.push({ logo: f1 });
+      if (f2) teams.push({ logo: f2 });
     }
-    // time
-    const tm = m.startTime ? new Date(m.startTime).getTime() : (isLive ? Date.now() : Date.now() + 7200000);
 
-    arr.push({ id: m.match_id || Math.random(), t, tr, c: cat, img, teams, li: isLive, u: url, r: res, tm });
+    // ── time ───────────────────────────────────────────
+    const rawTime = m.startTime || m.start_time || m.scheduled_at || m.date || null;
+    const tm = rawTime ? new Date(rawTime).getTime() : (isLive ? Date.now() : Date.now() + 7200000);
+
+    arr.push({
+      id: m.match_id || m.id || Math.random(),
+      t, tr, c: cat, img, teams,
+      li: isLive, u: primaryUrl, r: streams, tm
+    });
   }
 
-  // Detect schema: DOCTOR_STRANGE has .status field on matches
-  const hasStatus = (d.matches || []).some(m => m.status !== undefined);
+  // drmlive uses live_events[] + upcoming_events[] (newer format)
+  // but also supports matches[] + upcoming_matches[] (older format)
+  const liveArr     = d.live_events     || d.matches          || [];
+  const upcomingArr = d.upcoming_events || d.upcoming_matches  || [];
+
+  // If using matches[] without a status field, assume all are live
+  // If matches have a status field, filter by it
+  const hasStatus = liveArr.some(m => m.status !== undefined);
 
   if (hasStatus) {
-    (d.matches || []).forEach(m => {
-      const live = ['STARTED','live','LIVE','started'].includes(m.status || '');
+    liveArr.forEach(m => {
+      const live = ['STARTED','live','LIVE','started','ongoing'].includes(m.status || '');
       add(m, live);
     });
-    (d.upcoming_matches || []).forEach(m => add(m, false));
   } else {
-    // byte-capsule: everything in matches[] is currently live
-    (d.matches || []).forEach(m => add(m, true));
-    (d.upcoming_matches || []).forEach(m => add(m, false));
+    liveArr.forEach(m => add(m, true));
   }
+
+  upcomingArr.forEach(m => add(m, false));
 
   return arr.sort((a,b) => (b.li ? 1:0)-(a.li ? 1:0) || a.tm - b.tm);
 }
@@ -405,23 +456,28 @@ function pl(i) {
   const m=M[i];
   if(!m.li){ alert('Match not started yet.\nStarts: '+fd(m.tm)); return; }
 
-  // Build stream list: all_resolutions first (best quality), then stream_link
-  const streams=[];
-  const rk=Object.keys(m.r||{}).sort((a,b)=>parseInt(b)-parseInt(a));
-  rk.forEach(k=>{ if(m.r[k]) streams.push({label:k+'p',url:m.r[k]}); });
-  if(m.u) streams.push({label:streams.length?'Auto':'Play',url:m.u});
-
+  // drmlive gives us: r = { 'Ad-Free': url, 'DAI': url, 'Auto': url }
+  // Prefer Ad-Free > DAI > Auto, then fall back to m.u
+  const ORDER=['Ad-Free','DAI','Auto'];
+  const allKeys=Object.keys(m.r||{});
+  const sorted=[...ORDER.filter(k=>allKeys.includes(k)),...allKeys.filter(k=>!ORDER.includes(k))];
+  const streams=sorted.filter(k=>m.r[k]).map(k=>({label:k,url:m.r[k]}));
+  if(!streams.length && m.u) streams.push({label:'Play',url:m.u});
   if(!streams.length){ alert('No stream available for this match right now.'); return; }
+
+  // Single option → play directly (Ad-Free auto-selects)
   if(streams.length===1){ ps(m,streams[0].url); return; }
 
-  // Show picker
-  document.getElementById('ql').innerHTML=streams.map((s,x)=>
-    `<button onclick="ps(M[${i}],'${s.url}');cm()">${s.label}</button>`
-  ).join('');
+  // Multiple options → show picker
+  document.getElementById('ql').innerHTML=streams.map(s=>{
+    const lbl=s.label==='Ad-Free'?'⭐ Ad-Free (Best)':s.label==='DAI'?'📺 Standard (DAI)':s.label;
+    return `<button onclick="ps(M[${i}],'${encodeURIComponent(s.url)}');cm()">${lbl}</button>`;
+  }).join('');
   document.getElementById('qm').classList.add('active');
 }
 
 function ps(m, url) {
+  url = decodeURIComponent(url);
   if(!url){ alert('Stream URL missing.'); return; }
   document.getElementById('pt').innerText=m.t;
   document.getElementById('p').classList.add('active');
