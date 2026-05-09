@@ -366,27 +366,90 @@ function openMatch(idx) {
   document.getElementById('modal').classList.add('open');
 }
 
+// ── CORS PROXIES — tried in order until one works ─────────────────────────
+// FanCode streams block direct browser requests (CORS + Referer check).
+// We wrap the URL through a proxy so the browser gets clean HLS data.
+const PROXIES = [
+  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://cors-anywhere.herokuapp.com/${url}`,
+  url => url   // last resort: try direct (works on some networks/VPNs)
+];
+
+let proxyIndex = 0; // remember which proxy worked last
+
+function proxyUrl(url) {
+  return PROXIES[proxyIndex % PROXIES.length](url);
+}
+
+function tryNextProxy(m, rawUrl, attempt) {
+  if (attempt >= PROXIES.length) {
+    document.getElementById('buf').classList.add('hide');
+    alert('⚠️ Stream blocked by browser CORS policy.\n\nTry:\n• Using a VPN\n• Opening in VLC with the URL\n• Using Android app instead');
+    return;
+  }
+  proxyIndex = attempt;
+  const proxied = PROXIES[attempt](rawUrl);
+  console.log(`[Player] Trying proxy ${attempt}: ${proxied}`);
+  loadHls(m, rawUrl, proxied, attempt);
+}
+
+function loadHls(m, rawUrl, proxiedUrl, attempt) {
+  const v = document.getElementById('vid');
+  v.pause(); v.src = '';
+  if (hlsInst) { try { hlsInst.destroy(); } catch(e){} hlsInst = null; }
+
+  const ua  = (m.hdrs||{})['User-Agent'] || 'Mozilla/5.0';
+  const ref = (m.hdrs||{})['Referer']    || 'https://fancode.com/';
+
+  if (Hls.isSupported()) {
+    hlsInst = new Hls({
+      enableWorker: true,
+      lowLatencyMode: true,
+      // Only set headers on direct (non-proxy) requests
+      xhrSetup: function(xhr, url) {
+        // corsproxy.io and allorigins handle headers server-side
+        // Only inject headers on direct URLs to avoid CORS preflight rejection
+        if (attempt === PROXIES.length - 1) {
+          try { xhr.setRequestHeader('User-Agent', ua); } catch(e){}
+          try { xhr.setRequestHeader('Referer', ref); } catch(e){}
+        }
+      }
+    });
+    hlsInst.loadSource(proxiedUrl);
+    hlsInst.attachMedia(v);
+    hlsInst.on(Hls.Events.MANIFEST_PARSED, () => {
+      document.getElementById('buf').classList.add('hide');
+      v.play().catch(() => { v.muted = true; v.play(); });
+    });
+    hlsInst.on(Hls.Events.ERROR, (e, data) => {
+      if (data.fatal) {
+        console.warn(`[Player] Proxy ${attempt} failed, trying next...`, data.type);
+        hlsInst.destroy(); hlsInst = null;
+        tryNextProxy(m, rawUrl, attempt + 1);
+      }
+    });
+  } else if (v.canPlayType('application/vnd.apple.mpegurl')) {
+    // Safari — native HLS, try direct
+    v.src = rawUrl; v.load();
+    v.play().catch(() => { v.muted = true; v.play(); });
+    document.getElementById('buf').classList.add('hide');
+  } else {
+    document.getElementById('buf').classList.add('hide');
+    alert('HLS not supported in this browser.');
+  }
+}
+
 function startPlay(m, url) {
-  if (typeof url==='string' && !url.startsWith('http') && url.includes('%')) url=decodeURIComponent(url);
-  if (!url){ alert('Stream URL not available.'); return; }
+  if (typeof url === 'string' && !url.startsWith('http') && url.includes('%')) url = decodeURIComponent(url);
+  if (!url) { alert('Stream URL not available.'); return; }
+
   document.getElementById('p-title').textContent = m.title;
   document.getElementById('player').classList.add('open');
   document.getElementById('buf').classList.remove('hide');
-  const v = document.getElementById('vid');
-  v.pause(); v.src='';
-  if (hlsInst){ try{hlsInst.destroy();}catch(e){} hlsInst=null; }
-  const ua  = (m.hdrs||{})['User-Agent']||'';
-  const ref = (m.hdrs||{})['Referer']   ||'';
-  if (Hls.isSupported()) {
-    hlsInst = new Hls({ enableWorker:true, lowLatencyMode:true,
-      xhrSetup:xhr=>{ if(ua) xhr.setRequestHeader('User-Agent',ua); if(ref) xhr.setRequestHeader('Referer',ref); }
-    });
-    hlsInst.loadSource(url); hlsInst.attachMedia(v);
-    hlsInst.on(Hls.Events.MANIFEST_PARSED,()=>{ document.getElementById('buf').classList.add('hide'); v.play().catch(()=>{v.muted=true;v.play();}); });
-    hlsInst.on(Hls.Events.ERROR,(e,data)=>{ if(data.fatal){ hlsInst.destroy();hlsInst=null;v.src=url;v.load();v.play().catch(()=>{v.muted=true;v.play();}); document.getElementById('buf').classList.add('hide'); }});
-  } else if (v.canPlayType('application/vnd.apple.mpegurl')) {
-    v.src=url; v.load(); v.play().catch(()=>{v.muted=true;v.play();}); document.getElementById('buf').classList.add('hide');
-  } else { document.getElementById('buf').classList.add('hide'); alert('HLS not supported in this browser.'); }
+
+  // Start from last known working proxy index for faster load
+  tryNextProxy(m, url, proxyIndex);
 }
 
 function setFilter(t,btn){ filter=t; document.querySelectorAll('.pill,.nb').forEach(x=>x.classList.remove('active')); btn.classList.add('active'); render(); }
