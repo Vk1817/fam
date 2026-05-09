@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRICKCAST LIVE</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-color: #070b14;
+      --text-color: white;
+      --card-bg: rgba(12, 20, 35, 0.75);
+      --card-border: rgba(0, 229, 255, 0.15);
+      --card-hover-border: #00e5ff;
+      --card-shadow: 0 25px 40px -18px #000000;
+      --card-shadow-inset: 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+      --card-hover-shadow: 0 35px 55px -18px rgba(0,229,255,0.25);
+      --card-hover-shadow-inset: 0 0 0 1.5px #00e5ff inset;
+      --image-bg: #0c1422;
+      --image-border: rgba(0, 229, 255, 0.15);
+      --flag-bg: rgba(255, 255, 255, 0.03);
+      --flag-border: rgba(255, 255, 255, 0.06);
+      --flag-text: #e2e8f0;
+      --flag-icon-bg: #1e2a4a;
+      --title-gradient: linear-gradient(to right, #fff, #b8d4f8);
+      --watch-bg: linear-gradient(135deg, #00e5ff, #7b61ff);
+      --watch-shadow: 0 15px 20px -12px rgba(0,229,255,0.3);
+      --watch-notlive-bg: #1e293b;
+      --watch-notlive-color: #7789aa;
+      --watch-notlive-border: #334155;
+      --header-bg: #0a1220;
+      --header-border: rgba(0, 229, 255, 0.3);
+      --modal-bg: rgba(10, 18, 32, 0.97);
+      --quality-btn-bg: #1a2742;
+      --quality-btn-border: #1e4060;
+      --quality-btn-hover: #1e3355;
+      --meta-color: #6f7d9c;
+    }
+
+    body.light-mode {
+      --bg-color: #f8fafc;
+      --text-color: #0f172a;
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --card-border: rgba(0, 0, 0, 0.05);
+      --card-hover-border: #00e5ff;
+      --card-shadow: 0 15px 30px -10px rgba(0,0,0,0.08);
+      --card-shadow-inset: 0 0 0 1px rgba(0, 0, 0, 0.02) inset;
+      --card-hover-shadow: 0 25px 45px -10px rgba(0,229,255,0.2);
+      --card-hover-shadow-inset: 0 0 0 1.5px #00e5ff inset;
+      --image-bg: #e2e8f0;
+      --image-border: rgba(0, 0, 0, 0.05);
+      --flag-bg: rgba(0, 0, 0, 0.02);
+      --flag-border: rgba(0, 0, 0, 0.08);
+      --flag-text: #334155;
+      --flag-icon-bg: #f8fafc;
+      --title-gradient: linear-gradient(to right, #0f172a, #334155);
+      --watch-bg: linear-gradient(135deg, #00e5ff, #7b61ff);
+      --watch-shadow: 0 15px 20px -12px rgba(0,229,255,0.3);
+      --watch-notlive-bg: #e2e8f0;
+      --watch-notlive-color: #64748b;
+      --watch-notlive-border: #cbd5e1;
+      --header-bg: rgba(255, 255, 255, 0.85);
+      --header-border: rgba(0, 229, 255, 0.3);
+      --modal-bg: rgba(255, 255, 255, 0.97);
+      --quality-btn-bg: #f8fafc;
+      --quality-btn-border: #cbd5e1;
+      --quality-btn-hover: #f1f5f9;
+      --meta-color: #64748b;
+    }
+
+    body {
+      background: var(--bg-color);
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: var(--text-color);
+      padding: 2rem 1.5rem 4rem;
+      max-width: 1440px;
+      margin: 0 auto;
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+
+    .sleek-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border: 1px solid var(--card-border);
+      border-radius: 2.8rem;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      box-shadow: var(--card-shadow), var(--card-shadow-inset);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sleek-card:hover {
+      transform: translateY(-10px) scale(1.01);
+      border-color: var(--card-hover-border);
+      box-shadow: var(--card-hover-shadow), var(--card-hover-shadow-inset);
+    }
+
+    .sleek-image {
+      position: relative;
+      height: 220px;
+      background: var(--image-bg);
+      overflow: hidden;
+      border-bottom: 1px solid var(--image-border);
+    }
+
+    .sleek-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 15%;
+      transition: transform 0.7s ease, filter 0.5s ease;
+      filter: brightness(0.95) contrast(1.05);
+    }
+
+    .sleek-card:hover .sleek-image img {
+      transform: scale(1.07);
+      filter: brightness(1.05) contrast(1.1);
+    }
+
+    .live-glow {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      background: #dc2626;
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 0.4rem 1.2rem;
+      border-radius: 40px;
+      letter-spacing: 0.7px;
+      box-shadow: 0 0 20px #dc2626, 0 0 40px #dc2626aa;
+      border: 1px solid #ffb3b3;
+      backdrop-filter: blur(4px);
+      z-index: 10;
+      text-transform: uppercase;
+    }
+
+    .flag-strip {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 0.8rem 0 0.7rem;
+      flex-wrap: wrap;
+    }
+
+    .flag-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--flag-bg);
+      border: 1px solid var(--flag-border);
+      padding: 0.3rem 1rem 0.3rem 0.6rem;
+      border-radius: 40px;
+      backdrop-filter: blur(4px);
+      transition: 0.2s;
+    }
+
+    .flag-pill:hover {
+      background: rgba(0, 229, 255, 0.1);
+      border-color: #00e5ff;
+    }
+
+    .flag-pill img {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1.5px solid #00e5ff;
+      background: var(--flag-icon-bg);
+    }
+
+    .flag-pill span {
+      font-weight: 600;
+      font-size: 0.8rem;
+      color: var(--flag-text);
+      letter-spacing: 0.2px;
+    }
+
+    .watch-sleek {
+      background: var(--watch-bg);
+      border: none;
+      border-radius: 24px;
+      padding: 1rem 1.2rem;
+      font-weight: 700;
+      font-size: 1rem;
+      text-align: center;
+      margin-top: auto;
+      cursor: pointer;
+      transition: all 0.25s;
+      box-shadow: var(--watch-shadow);
+      border: 1px solid rgba(0,229,255,0.3);
+      letter-spacing: 0.5px;
+      backdrop-filter: blur(5px);
+      color: #000;
+    }
+
+    .watch-sleek:hover {
+      transform: scale(1.02);
+      box-shadow: 0 20px 35px -12px rgba(0,229,255,0.45);
+    }
+
+    .watch-sleek i { margin-right: 8px; }
+
+    .watch-sleek.not-live {
+      background: var(--watch-notlive-bg);
+      box-shadow: none;
+      color: var(--watch-notlive-color);
+      border-color: var(--watch-notlive-border);
+      cursor: not-allowed;
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    .tourney-sleek {
+      color: #98a9c9;
+      font-weight: 600;
+      font-size: 0.7rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .title-sleek {
+      font-size: 1.4rem;
+      font-weight: 800;
+      line-height: 1.25;
+      margin: 0.2rem 0 0.1rem;
+      letter-spacing: -0.3px;
+      background: var(--title-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .meta-light {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.7rem;
+      color: var(--meta-color);
+      font-weight: 500;
+      margin: 0.3rem 0 1rem;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 18, 0.92);
+      backdrop-filter: blur(18px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-sleek {
+      background: var(--modal-bg);
+      border: 1px solid #00e5ff;
+      border-radius: 3rem;
+      padding: 2.2rem 2rem;
+      width: 90%;
+      max-width: 380px;
+      text-align: center;
+      box-shadow: 0 40px 80px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,229,255,0.2) inset;
+    }
+
+    .modal-sleek h3 { color: var(--text-color); }
+
+    .quality-sleek-btn {
+      background: var(--quality-btn-bg);
+      border: 1px solid var(--quality-btn-border);
+      width: 100%;
+      padding: 1.1rem 1.8rem;
+      margin-bottom: 14px;
+      border-radius: 50px;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-color);
+      transition: 0.2s;
+      cursor: pointer;
+    }
+
+    .quality-sleek-btn:hover {
+      background: var(--quality-btn-hover);
+      border-color: #00e5ff;
+      transform: scale(1.02);
+      box-shadow: 0 8px 14px -8px rgba(0,0,0,0.2);
+    }
+
+    .close-sleek {
+      color: #fca5a5;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 1.2rem;
+      display: inline-block;
+      border-bottom: 2px dotted #f87171;
+      font-size: 0.9rem;
+    }
+
+    /* Loading skeleton */
+    .skeleton {
+      background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 2.8rem;
+      height: 380px;
+    }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    /* Telegram bottom banner */
+    .tg-banner {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 500;
+      background: linear-gradient(135deg, rgba(0,229,255,0.12), rgba(123,97,255,0.12));
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(0,229,255,0.2);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+    }
+    .tg-banner span { font-size: 13px; font-weight: 600; color: #b8d4f8; }
+    .tg-banner a {
+      padding: 7px 20px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #00e5ff, #7b61ff);
+      color: #000;
+      font-weight: 700;
+      font-size: 12px;
+      text-decoration: none;
+      letter-spacing: 0.5px;
+    }
+    .tg-banner .tg-close {
+      position: absolute; right: 14px;
+      background: none; border: none;
+      color: #6b85a8; font-size: 16px; cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="text-center mb-14 mt-2">
+    <div class="inline-flex items-center gap-4 py-4 px-10 rounded-full shadow-2xl backdrop-blur-xl transition-all duration-300"
+         style="background: var(--header-bg); border: 1px solid var(--header-border);">
+      <i class="fas fa-satellite-dish text-cyan-400 text-xl"></i>
+      <span class="text-3xl font-black tracking-wider" style="background: linear-gradient(135deg,#00e5ff,#7b61ff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">
+        CRICKCAST LIVE
+      </span>
+    </div>
+    <p class="text-gray-500 text-xs mt-4 tracking-[0.3rem] font-mono">FanCode HD · Live Sports Streaming</p>
+
+    <!-- Theme toggle + Telegram -->
+    <div class="mt-5 flex items-center justify-center gap-3">
+      <button id="theme-toggle" class="p-3 px-5 rounded-full shadow-lg backdrop-blur-xl transition-all hover:scale-110 active:scale-95"
+              style="background: var(--header-bg); border: 1px solid var(--header-border); color: var(--text-color); font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+        <i class="fas fa-sun" id="theme-icon"></i>
+        <span id="theme-label">Light Mode</span>
+      </button>
+      <a href="https://t.me/addlist/6qALMSdKoVVkNWI1" target="_blank"
+         class="p-3 px-5 rounded-full shadow-lg transition-all hover:scale-110"
+         style="background: linear-gradient(135deg,rgba(0,229,255,0.15),rgba(123,97,255,0.15)); border: 1px solid rgba(0,229,255,0.25); color: #00e5ff; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; text-decoration:none;">
+        <i class="fab fa-telegram"></i> Join Telegram
+      </a>
+    </div>
+  </div>
+
+  <!-- MATCHES GRID -->
+  <div id="matches-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <!-- Skeletons while loading -->
+    <div class="skeleton"></div>
+    <div class="skeleton"></div>
+    <div class="skeleton"></div>
+  </div>
+
+  <!-- QUALITY MODAL -->
+  <div id="quality-modal" class="modal-overlay">
+    <div class="modal-sleek">
+      <h3 class="text-2xl font-bold mb-7">Select Quality</h3>
+      <div id="quality-list" class="mb-4"></div>
+      <div class="close-sleek" onclick="closeModal()">✕ Close</div>
+    </div>
+  </div>
+
+  <!-- TELEGRAM BOTTOM BANNER -->
+  <div class="tg-banner" id="tg-banner">
+    <span>📡 Get live match links on Telegram</span>
+    <a href="https://t.me/addlist/6qALMSdKoVVkNWI1" target="_blank">✈️ Join Now</a>
+    <button class="tg-close" onclick="document.getElementById('tg-banner').style.display='none'">✕</button>
+  </div>
+
+  <script>
+    const DATA_URL  = "https://raw.githubusercontent.com/Vk1817/Fancode_autoupdate/main/pranav.json";
+    const PLAYER_URL = "/fc-play?url=";
+
+    const container = document.getElementById('matches-container');
+    let allMatches = [];
+
+    function fmtDate(ts) {
+      if (!ts) return 'TBD';
+      const d = new Date(ts);
+      if (isNaN(d)) return ts;
+      const now = new Date();
+      const isToday = d.toDateString() === now.toDateString();
+      const dd  = String(d.getDate()).padStart(2,'0');
+      const mon = d.toLocaleString('en-IN',{month:'short'});
+      const hh  = String(d.getHours()).padStart(2,'0');
+      const mm  = String(d.getMinutes()).padStart(2,'0');
+      return isToday ? `Today, ${hh}:${mm}` : `${dd} ${mon}, ${hh}:${mm}`;
+    }
+
+    function renderMatches(matches) {
+      container.innerHTML = '';
+      if (!matches.length) {
+        container.innerHTML = '<div class="col-span-full text-center py-20 text-gray-500">No matches available right now</div>';
+        return;
+      }
+
+      matches.forEach((match, idx) => {
+        // drmlive schema: live_events[] + upcoming_events[]
+        const isLive = match.isLive !== undefined
+          ? match.isLive
+          : ['LIVE','STARTED','ONGOING'].includes((match.status||'').toUpperCase());
+
+        const imageSrc = match.src || match.image || match.banner ||
+          'https://www.fancode.com/skillup-uploads/cms-media/Cricket_Fallback_Old_match-card.jpg';
+        const category = match.category || match.event_catagory || match.event_category || 'Sports';
+        const title    = match.title || match.name || match.match_name || 'Match';
+        const tourn    = match.tournament || match.event_name || 'International';
+        const lang     = match.language || '';
+        const startT   = fmtDate(match.startTime || match.start_time);
+
+        // Team pills
+        let teamHtml = '';
+        if (match.team_1 && match.team_2) {
+          teamHtml = `<div class="flag-strip">
+            <div class="flag-pill"><span>${match.team_1}</span></div>
+            <div class="flag-pill"><span>${match.team_2}</span></div>
+            <span class="ml-auto text-[0.65rem] font-bold px-4 py-1.5 rounded-full"
+              style="background:rgba(0,229,255,0.08);border:1px solid rgba(0,229,255,0.2);color:#00e5ff;">${category}</span>
+          </div>`;
+        }
+
+        const hasStream = isLive && (match.adfree_url || match.dai_url);
+        const watchAction = hasStream ? `playStream(${idx})` : '';
+        const watchBtnClass = hasStream ? 'watch-sleek' : 'watch-sleek not-live';
+        const watchIcon = isLive
+          ? (hasStream ? '<i class="fas fa-play-circle"></i> WATCH LIVE' : '<i class="fas fa-lock"></i> NO STREAM')
+          : '<i class="fas fa-hourglass-half"></i> UPCOMING';
+
+        const card = document.createElement('div');
+        card.className = 'sleek-card';
+        card.innerHTML = `
+          <div class="sleek-image">
+            <img src="${imageSrc}" alt="${title}" loading="lazy"
+              onerror="this.src='https://www.fancode.com/skillup-uploads/cms-media/Cricket_Fallback_Old_match-card.jpg'">
+            ${isLive ? '<span class="live-glow"><i class="fas fa-circle text-[0.5rem] mr-1 align-middle"></i> LIVE</span>' : ''}
+          </div>
+          <div class="p-6 flex flex-col flex-grow">
+            <div class="tourney-sleek">
+              <i class="fas fa-medal" style="color:#00e5ff;"></i> ${tourn}
+            </div>
+            <h3 class="title-sleek">${title}</h3>
+            ${teamHtml}
+            <div class="meta-light">
+              <span><i class="far fa-calendar-alt mr-1"></i>${startT}</span>
+              ${lang ? `<span><i class="fas fa-language mr-1"></i>${lang}</span>` : `<span><i class="far fa-clock mr-1"></i>${category}</span>`}
+            </div>
+            <div onclick="${watchAction}" class="${watchBtnClass}">
+              ${watchIcon}
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function playStream(index) {
+      const match = allMatches[index];
+      const adfree  = match.adfree_url  || match.ad_free_url || '';
+      const dai     = match.dai_url     || '';
+      const generic = match.stream_link || match.hls_link    || match.stream_url || '';
+
+      const streams = [];
+      if (adfree)  streams.push({ label: '⭐ Ad-Free (Best)', url: adfree });
+      if (dai)     streams.push({ label: '📺 Standard (DAI)', url: dai });
+      if (generic && generic !== adfree && generic !== dai)
+                   streams.push({ label: '▶️ Auto', url: generic });
+
+      if (!streams.length) { alert('Stream not available'); return; }
+      if (streams.length === 1) {
+        window.location.href = PLAYER_URL + encodeURIComponent(streams[0].url);
+        return;
+      }
+
+      // Show quality picker
+      const list = document.getElementById('quality-list');
+      list.innerHTML = streams.map(s => `
+        <button class="quality-sleek-btn"
+          onclick="window.location.href='${PLAYER_URL}${encodeURIComponent(s.url)}'">
+          <span>${s.label}</span>
+          <i class="fas fa-chevron-right" style="color:#00e5ff;font-size:0.8rem;"></i>
+        </button>
+      `).join('');
+      document.getElementById('quality-modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('quality-modal').style.display = 'none';
+    }
+
+    // Parse drmlive schema — handles live_events[] + upcoming_events[] 
+    function parseData(data) {
+      const live     = (data.live_events     || data.matches          || []).map(m => ({...m, isLive: true}));
+      const upcoming = (data.upcoming_events || data.upcoming_matches  || []).map(m => ({...m, isLive: false}));
+      // If matches[] has status field, detect live properly
+      if (data.matches) {
+        return data.matches.map(m => {
+          const s = (m.status||'').toUpperCase();
+          const ss = (m.streamingStatus||'').toUpperCase();
+          return {...m, isLive: ['LIVE','STARTED','ONGOING'].includes(s)||['LIVE','STARTED'].includes(ss)};
+        });
+      }
+      return [...live, ...upcoming];
+    }
+
+    // Fetch data
+    async function loadData() {
+      try {
+        const res  = await fetch(DATA_URL + '?_=' + Date.now());
+        const data = await res.json();
+        allMatches = parseData(data);
+        renderMatches(allMatches);
+      } catch(e) {
+        container.innerHTML = '<div class="col-span-full text-center py-20 text-gray-500"><i class="fas fa-exclamation-triangle mr-2"></i>Failed to load matches. Please refresh.</div>';
+      }
+    }
+
+    loadData();
+    setInterval(loadData, 5 * 60 * 1000); // auto-refresh every 5 min
+
+    // Close modal on outside click
+    window.onclick = e => {
+      const modal = document.getElementById('quality-modal');
+      if (e.target === modal) modal.style.display = 'none';
+    };
+
+    // Theme toggle
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    function setTheme(isLight) {
+      const themeLabel = document.getElementById('theme-label');
+      const themeIcon  = document.getElementById('theme-icon');
+      if (isLight) {
+        document.body.classList.add('light-mode');
+        themeIcon.classList.replace('fa-sun','fa-moon');
+        themeLabel.textContent = 'Dark Mode';
+        localStorage.setItem('theme','light');
+      } else {
+        document.body.classList.remove('light-mode');
+        themeIcon.classList.replace('fa-moon','fa-sun');
+        themeLabel.textContent = 'Light Mode';
+        localStorage.setItem('theme','dark');
+      }
+    }
+    const saved = localStorage.getItem('theme');
+    const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+    setTheme(saved === 'light' || (!saved && prefersLight));
+    themeToggleBtn.addEventListener('click', () => setTheme(!document.body.classList.contains('light-mode')));
+  </script>
+</body>
+</html>
