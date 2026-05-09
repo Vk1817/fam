@@ -134,6 +134,8 @@ nav{position:fixed;bottom:0;width:100%;height:68px;z-index:900;display:flex;back
 .f-fs:hover{background:rgba(0,229,255,.15);color:var(--accent);}
 .buf{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:100;width:52px;height:52px;border-radius:50%;border:3px solid rgba(0,229,255,.12);border-top-color:var(--accent);animation:spin .72s linear infinite;pointer-events:none;}
 .buf.hide{display:none;}
+#player-error{display:none;}
+#player-error.show{display:flex;}
 </style>
 </head>
 <body>
@@ -205,7 +207,21 @@ nav{position:fixed;bottom:0;width:100%;height:68px;z-index:900;display:flex;back
     <button class="f-back" onclick="closePlayer()"><i class="fas fa-arrow-left"></i></button>
     <button class="f-fs" onclick="toggleFS()"><i class="fas fa-expand" id="fs-icon2"></i></button>
     <div class="buf" id="buf"></div>
-    <video id="vid" autoplay playsinline controls></video>
+    <!-- iframe player handles CORS internally — no black screen -->
+    <iframe id="ifrm" allowfullscreen allow="autoplay; fullscreen"
+      style="width:100%;height:100%;border:none;background:#000;display:none;"></iframe>
+    <video id="vid" autoplay playsinline controls
+      style="width:100%;height:100%;object-fit:contain;background:#000;display:none;"></video>
+    <div id="player-error" style="display:none;flex-direction:column;align-items:center;justify-content:center;
+      height:100%;gap:16px;color:#6b85a8;text-align:center;padding:20px;">
+      <i class="fas fa-exclamation-circle" style="font-size:40px;color:#ff4d6d;opacity:.6;"></i>
+      <p style="font-size:14px;font-weight:600;color:#f0f6ff;">Stream not available in browser</p>
+      <p style="font-size:12px;line-height:1.6;">FanCode blocks direct browser playback.<br>Copy the URL and open in <b>VLC</b> or use the <b>Android app</b>.</p>
+      <button onclick="copyStreamUrl()" style="padding:10px 22px;border-radius:8px;border:1px solid rgba(0,229,255,0.3);
+        background:rgba(0,229,255,0.1);color:#00e5ff;font-size:13px;font-weight:600;cursor:pointer;">
+        <i class="fas fa-copy"></i> Copy Stream URL
+      </button>
+    </div>
   </div>
 </div>
 
@@ -305,10 +321,18 @@ function buildPills() {
   });
 }
 
-function fmtTime(ts) {
+function fmtTime(ts, isLive) {
+  if (isLive) return '🔴 Live Now';
   if (!ts) return 'TBA';
   const d = new Date(ts);
-  return isNaN(d) ? 'TBA' : d.toLocaleString('en-IN',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+  if (isNaN(d)) return 'TBA';
+  const now = new Date();
+  const isToday = d.toDateString() === now.toDateString();
+  const isTomorrow = d.toDateString() === new Date(now.getTime()+86400000).toDateString();
+  const timeStr = d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});
+  if (isToday) return `Today, ${timeStr}`;
+  if (isTomorrow) return `Tomorrow, ${timeStr}`;
+  return d.toLocaleDateString('en-IN',{day:'numeric',month:'short'}) + ', ' + timeStr;
 }
 
 function render() {
@@ -346,7 +370,7 @@ function render() {
         <div class="card-title">${m.title}</div>
         <div class="card-tourn"><i class="fas fa-trophy"></i>${m.tournament||'Tournament'}</div>
         <div class="card-foot">
-          <span class="card-time"><i class="fas fa-clock"></i>${fmtTime(m.tm)}</span>
+          <span class="card-time"><i class="fas fa-clock"></i>${fmtTime(m.tm, m.isLive)}</span>
           ${m.language?`<span class="lang-tag">${m.language}</span>`:''}
         </div>
       </div>
@@ -356,7 +380,7 @@ function render() {
 
 function openMatch(idx) {
   const m = MATCHES[idx]; curMatch = m;
-  if (!m.isLive){ alert(`⏰ Match not started yet!\nStarts: ${fmtTime(m.tm)}`); return; }
+  if (!m.isLive){ alert(`⏰ Match not started yet!\nStarts: ${fmtTime(m.tm, false)}`); return; }
   if (!m.streamUrl && !Object.keys(m.streams).length){ alert('No stream available.'); return; }
   const entries = Object.entries(m.streams);
   if (entries.length<=1){ startPlay(m, m.streamUrl||entries[0]?.[1]); return; }
@@ -366,98 +390,109 @@ function openMatch(idx) {
   document.getElementById('modal').classList.add('open');
 }
 
-// ── CORS PROXIES — tried in order until one works ─────────────────────────
-// FanCode streams block direct browser requests (CORS + Referer check).
-// We wrap the URL through a proxy so the browser gets clean HLS data.
-const PROXIES = [
-  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-  url => `https://cors-anywhere.herokuapp.com/${url}`,
-  url => url   // last resort: try direct (works on some networks/VPNs)
-];
+let currentStreamUrl = '';
 
-let proxyIndex = 0; // remember which proxy worked last
-
-function proxyUrl(url) {
-  return PROXIES[proxyIndex % PROXIES.length](url);
-}
-
-function tryNextProxy(m, rawUrl, attempt) {
-  if (attempt >= PROXIES.length) {
-    document.getElementById('buf').classList.add('hide');
-    alert('⚠️ Stream blocked by browser CORS policy.\n\nTry:\n• Using a VPN\n• Opening in VLC with the URL\n• Using Android app instead');
-    return;
-  }
-  proxyIndex = attempt;
-  const proxied = PROXIES[attempt](rawUrl);
-  console.log(`[Player] Trying proxy ${attempt}: ${proxied}`);
-  loadHls(m, rawUrl, proxied, attempt);
-}
-
-function loadHls(m, rawUrl, proxiedUrl, attempt) {
-  const v = document.getElementById('vid');
-  v.pause(); v.src = '';
-  if (hlsInst) { try { hlsInst.destroy(); } catch(e){} hlsInst = null; }
-
-  const ua  = (m.hdrs||{})['User-Agent'] || 'Mozilla/5.0';
-  const ref = (m.hdrs||{})['Referer']    || 'https://fancode.com/';
-
-  if (Hls.isSupported()) {
-    hlsInst = new Hls({
-      enableWorker: true,
-      lowLatencyMode: true,
-      // Only set headers on direct (non-proxy) requests
-      xhrSetup: function(xhr, url) {
-        // corsproxy.io and allorigins handle headers server-side
-        // Only inject headers on direct URLs to avoid CORS preflight rejection
-        if (attempt === PROXIES.length - 1) {
-          try { xhr.setRequestHeader('User-Agent', ua); } catch(e){}
-          try { xhr.setRequestHeader('Referer', ref); } catch(e){}
-        }
-      }
-    });
-    hlsInst.loadSource(proxiedUrl);
-    hlsInst.attachMedia(v);
-    hlsInst.on(Hls.Events.MANIFEST_PARSED, () => {
-      document.getElementById('buf').classList.add('hide');
-      v.play().catch(() => { v.muted = true; v.play(); });
-    });
-    hlsInst.on(Hls.Events.ERROR, (e, data) => {
-      if (data.fatal) {
-        console.warn(`[Player] Proxy ${attempt} failed, trying next...`, data.type);
-        hlsInst.destroy(); hlsInst = null;
-        tryNextProxy(m, rawUrl, attempt + 1);
-      }
-    });
-  } else if (v.canPlayType('application/vnd.apple.mpegurl')) {
-    // Safari — native HLS, try direct
-    v.src = rawUrl; v.load();
-    v.play().catch(() => { v.muted = true; v.play(); });
-    document.getElementById('buf').classList.add('hide');
-  } else {
-    document.getElementById('buf').classList.add('hide');
-    alert('HLS not supported in this browser.');
-  }
+function showEl(id, show, flex) {
+  document.getElementById(id).style.display = show ? (flex ? 'flex' : 'block') : 'none';
 }
 
 function startPlay(m, url) {
   if (typeof url === 'string' && !url.startsWith('http') && url.includes('%')) url = decodeURIComponent(url);
   if (!url) { alert('Stream URL not available.'); return; }
+  currentStreamUrl = url;
 
   document.getElementById('p-title').textContent = m.title;
   document.getElementById('player').classList.add('open');
-  document.getElementById('buf').classList.remove('hide');
 
-  // Start from last known working proxy index for faster load
-  tryNextProxy(m, url, proxyIndex);
+  // Reset all player elements
+  showEl('buf', true);
+  showEl('ifrm', false);
+  showEl('vid', false);
+  showEl('player-error', false);
+  document.getElementById('ifrm').src = '';
+
+  const v = document.getElementById('vid');
+  v.pause(); v.src = '';
+  if (hlsInst) { try { hlsInst.destroy(); } catch(e){} hlsInst = null; }
+
+  // ── Strategy 1: hls.js with corsproxy.io ──────────────────────────────
+  // corsproxy.io strips CORS restrictions and forwards the stream cleanly
+  const proxied = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+
+  if (Hls.isSupported()) {
+    hlsInst = new Hls({ enableWorker: true, lowLatencyMode: true });
+    hlsInst.loadSource(proxied);
+    hlsInst.attachMedia(v);
+    hlsInst.on(Hls.Events.MANIFEST_PARSED, () => {
+      showEl('buf', false);
+      showEl('vid', true, false);
+      v.style.display = 'block';
+      v.play().catch(() => { v.muted = true; v.play(); });
+    });
+    hlsInst.on(Hls.Events.ERROR, (e, data) => {
+      if (data.fatal) {
+        console.warn('[Player] corsproxy failed, trying iframe player...');
+        hlsInst.destroy(); hlsInst = null;
+        tryIframePlayer(url);
+      }
+    });
+    // Timeout: if no manifest in 8s, try iframe
+    setTimeout(() => {
+      if (document.getElementById('buf').style.display !== 'none') {
+        if (hlsInst) { hlsInst.destroy(); hlsInst = null; }
+        tryIframePlayer(url);
+      }
+    }, 8000);
+  } else if (v.canPlayType('application/vnd.apple.mpegurl')) {
+    // Safari — native HLS
+    v.src = url; v.load();
+    v.style.display = 'block';
+    showEl('buf', false);
+    v.play().catch(() => { v.muted = true; v.play(); });
+  } else {
+    tryIframePlayer(url);
+  }
+}
+
+function tryIframePlayer(url) {
+  // ── Strategy 2: embed via hlsplayer.net iframe ────────────────────────
+  // This external player handles CORS and DRM internally in its own context
+  showEl('buf', true);
+  showEl('vid', false);
+  const ifrm = document.getElementById('ifrm');
+  // hlsplayer.net is a public HLS web player that accepts a stream URL param
+  ifrm.src = `https://hlsplayer.net/play?url=${encodeURIComponent(url)}`;
+  ifrm.style.display = 'block';
+  showEl('buf', false);
+
+  // If iframe fails to load in 10s, show copy-URL fallback
+  const t = setTimeout(() => showPlayerError(), 10000);
+  ifrm.onload = () => clearTimeout(t);
+}
+
+function showPlayerError() {
+  showEl('buf', false);
+  showEl('ifrm', false);
+  showEl('vid', false);
+  showEl('player-error', true, true);
+}
+
+function copyStreamUrl() {
+  if (!currentStreamUrl) return;
+  navigator.clipboard.writeText(currentStreamUrl)
+    .then(() => alert('✅ Stream URL copied!\n\nPaste it in VLC:\nMedia → Open Network Stream → Paste URL'))
+    .catch(() => { prompt('Copy this stream URL:', currentStreamUrl); });
 }
 
 function setFilter(t,btn){ filter=t; document.querySelectorAll('.pill,.nb').forEach(x=>x.classList.remove('active')); btn.classList.add('active'); render(); }
 function closeModal(){ document.getElementById('modal').classList.remove('open'); }
 function closePlayer(){
   document.getElementById('player').classList.remove('open');
-  const v=document.getElementById('vid'); v.pause(); v.src='';
+  const v=document.getElementById('vid'); v.pause(); v.src=''; v.style.display='none';
   if(hlsInst){try{hlsInst.destroy();}catch(e){} hlsInst=null;}
+  const ifrm=document.getElementById('ifrm'); ifrm.src=''; ifrm.style.display='none';
+  showEl('player-error',false);
+  showEl('buf',false);
   document.getElementById('fs-icon').className='fas fa-expand';
   document.getElementById('fs-icon2').className='fas fa-expand';
 }
