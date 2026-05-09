@@ -329,10 +329,15 @@ function fmtTime(ts, isLive) {
   const now = new Date();
   const isToday = d.toDateString() === now.toDateString();
   const isTomorrow = d.toDateString() === new Date(now.getTime()+86400000).toDateString();
-  const timeStr = d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});
-  if (isToday) return `Today, ${timeStr}`;
+  // DD Mon format — e.g. 09 May, 06:30 PM
+  const dd  = String(d.getDate()).padStart(2,'0');
+  const mon = d.toLocaleString('en-IN',{month:'short'});
+  const hh  = String(d.getHours()).padStart(2,'0');
+  const mm  = String(d.getMinutes()).padStart(2,'0');
+  const timeStr = `${hh}:${mm}`;
+  if (isToday)    return `Today, ${timeStr}`;
   if (isTomorrow) return `Tomorrow, ${timeStr}`;
-  return d.toLocaleDateString('en-IN',{day:'numeric',month:'short'}) + ', ' + timeStr;
+  return `${dd} ${mon}, ${timeStr}`;
 }
 
 function render() {
@@ -455,19 +460,49 @@ function startPlay(m, url) {
 }
 
 function tryIframePlayer(url) {
-  // ── Strategy 2: embed via hlsplayer.net iframe ────────────────────────
-  // This external player handles CORS and DRM internally in its own context
   showEl('buf', true);
   showEl('vid', false);
   const ifrm = document.getElementById('ifrm');
-  // hlsplayer.net is a public HLS web player that accepts a stream URL param
-  ifrm.src = `https://hlsplayer.net/play?url=${encodeURIComponent(url)}`;
+
+  // Use a self-contained HLS iframe player built into the page
+  // We create a data URI with a mini hls.js player inside so no external 404
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js"><\/script>
+  <style>*{margin:0;padding:0;background:#000;}video{width:100vw;height:100vh;object-fit:contain;}</style>
+  </head><body>
+  <video id="v" autoplay playsinline controls></video>
+  <script>
+    var url="${url.replace(/"/g,'\\"')}";
+    var v=document.getElementById('v');
+    if(Hls.isSupported()){
+      var h=new Hls({enableWorker:true,lowLatencyMode:true});
+      h.loadSource(url);h.attachMedia(v);
+      h.on(Hls.Events.MANIFEST_PARSED,function(){v.play();});
+      h.on(Hls.Events.ERROR,function(e,d){if(d.fatal){v.src=url;v.load();v.play();}});
+    } else if(v.canPlayType('application/vnd.apple.mpegurl')){
+      v.src=url;v.load();v.play();
+    }
+  <\/script></body></html>`;
+
+  const blob = new Blob([html], {type:'text/html'});
+  const blobUrl = URL.createObjectURL(blob);
+  ifrm.src = blobUrl;
   ifrm.style.display = 'block';
   showEl('buf', false);
 
-  // If iframe fails to load in 10s, show copy-URL fallback
-  const t = setTimeout(() => showPlayerError(), 10000);
-  ifrm.onload = () => clearTimeout(t);
+  ifrm.onload = () => URL.revokeObjectURL(blobUrl);
+
+  // If still showing error after 12s, show copy fallback
+  setTimeout(() => {
+    if (document.getElementById('player').classList.contains('open') &&
+        ifrm.style.display === 'block') {
+      // Check if video inside iframe is playing — if not, show error
+      try {
+        const iv = ifrm.contentDocument?.getElementById('v');
+        if (!iv || iv.paused || iv.readyState < 2) showPlayerError();
+      } catch(e) { /* cross-origin, assume ok */ }
+    }
+  }, 12000);
 }
 
 function showPlayerError() {
