@@ -1,12 +1,13 @@
 <head>
   <meta charset="UTF-8">
-    <title>CRICKCAST LIVE · Player</title>
+  <title>CRICKCAST Player</title>
 
   <meta name="referrer" content="no-referrer">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.6.0/shaka-player.ui.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.6.0/controls.min.css">
-  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 
   <style type="text/css">
       body {position:absolute;
@@ -34,15 +35,12 @@
       .shaka-video-container {
         position: absolute ;
         width: 100%;height:100%;
-        
-        
       }
 
       video {
         width: 100%;
         height: 100%;
         background-color: #000;
-        
       }
 
       .video-watermark {
@@ -60,11 +58,9 @@
         body {width:100%;height:100%
           padding: 1px;
         }
-        
         .video-container {
           max-width: 100%;height:100%
         }
-        
         .video-watermark {
           width: 30px;
           height: 30px;
@@ -78,15 +74,13 @@
           max-width: 854px;
         }
       }
-  
+
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
       background: #000;
-      
       font-family: system-ui, -apple-system, sans-serif;
     }
-
 
     /* YouTube Theme CSS */
     @font-face {
@@ -155,8 +149,8 @@
     }
     .youtube-theme .shaka-controls-button-panel > *:focus {
       outline: none;
-      -webkit-box-shadow: inset 0 0 0 2px rgba(27, 127, 204, 0.8);
-              box-shadow: inset 0 0 0 2px rgba(27, 127, 204, 0.8);
+      -webkit-box-shadow: inset 0 0 0 2px rgba(255, 183, 3, 0.8);
+              box-shadow: inset 0 0 0 2px rgba(255, 183, 3, 0.8);
       color: #FFF;
     }
     .youtube-theme .shaka-controls-button-panel > *:hover {
@@ -212,15 +206,15 @@
       cursor: pointer;
     }
     .youtube-theme .shaka-seek-bar-container input[type=range]::-webkit-slider-thumb {
-      background: #00e5ff;
+      background: #ffb703;
       cursor: pointer;
     }
     .youtube-theme .shaka-seek-bar-container input[type=range]::-moz-range-thumb {
-      background: #00e5ff;
+      background: #ffb703;
       cursor: pointer;
     }
     .youtube-theme .shaka-seek-bar-container input[type=range]::-ms-thumb {
-      background: #00e5ff;
+      background: #ffb703;
       cursor: pointer;
     }
     .youtube-theme .shaka-video-container * {
@@ -231,8 +225,8 @@
     }
     .youtube-theme .shaka-overflow-menu,
     .youtube-theme .shaka-settings-menu {
-      border-radius: 2px;
-      background: rgba(28, 28, 28, 0.9);
+      border-radius: 8px;
+      background: rgba(10, 10, 12, 0.92);
       text-shadow: 0 0 2px rgb(0 0 0%);
       -webkit-transition: opacity 0.1s cubic-bezier(0, 0, 0.2, 1);
       transition: opacity 0.1s cubic-bezier(0, 0, 0.2, 1);
@@ -243,6 +237,7 @@
       bottom: 50px;
       padding: 8px 0;
       min-width: 200px;
+      border: 1px solid rgba(255,183,3,0.25);
     }
     .youtube-theme .shaka-settings-menu {
       padding: 0 0 8px 0;
@@ -299,82 +294,6 @@
           -ms-flex: 0 0 100%;
               flex: 0 0 100%;
     }
-    .youtube-theme .shaka-overflow-menu button .shaka-overflow-button-label span {
-      -ms-flex-negative: initial;
-          flex-shrink: initial;
-      padding-left: 15px;
-      font-size: 13px;
-      font-weight: 500;
-      display: -webkit-box;
-      display: -ms-flexbox;
-      display: flex;
-      -webkit-box-align: center;
-          -ms-flex-align: center;
-              align-items: center;
-    }
-    .youtube-theme .shaka-overflow-menu span + span {
-      color: #FFF;
-      font-weight: 400 !important;
-      font-size: 12px !important;
-      padding-right: 8px;
-      padding-left: 0 !important;
-    }
-    .youtube-theme .shaka-overflow-menu span + span:after {
-      content: "navigate_next";
-      font-family: 'Material Icons Sharp';
-      font-size: 20px;
-    }
-    .youtube-theme .shaka-overflow-menu .shaka-pip-button span + span {
-      padding-right: 15px !important;
-    }
-    .youtube-theme .shaka-overflow-menu .shaka-pip-button span + span:after {
-      content: "";
-    }
-    .youtube-theme .shaka-back-to-overflow-button {
-      padding: 8px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-      font-size: 12px;
-      color: #eee;
-      height: 60px;
-    }
-    .youtube-theme .shaka-back-to-overflow-button .material-icons-round {
-      font-size: 15px;
-      padding-right: 10px;
-    }
-    .youtube-theme .shaka-back-to-overflow-button span {
-      margin-left: 3px !important;
-    }
-    .youtube-theme .shaka-overflow-menu button:hover,
-    .youtube-theme .shaka-settings-menu button:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-      cursor: pointer;
-    }
-    .youtube-theme .shaka-overflow-menu button:hover label,
-    .youtube-theme .shaka-settings-menu button:hover label {
-      cursor: pointer;
-    }
-    .youtube-theme .shaka-overflow-menu button:focus,
-    .youtube-theme .shaka-settings-menu button:focus {
-      background-color: rgba(255, 255, 255, 0.1);
-      border: none;
-      outline: none;
-    }
-    .youtube-theme .shaka-overflow-menu button,
-    .youtube-theme .shaka-settings-menu button {
-      color: #EEE;
-    }
-    .youtube-theme .shaka-captions-off {
-      color: #BFBFBF;
-    }
-    .youtube-theme .shaka-overflow-menu-button {
-      font-size: 18px;
-      margin-right: 5px;
-    }
-    .youtube-theme .shaka-fullscreen-button:hover {
-      font-size: 25px;
-      -webkit-transition: font-size 0.1s cubic-bezier(0, 0, 0.2, 1);
-      transition: font-size 0.1s cubic-bezier(0, 0, 0.2, 1);
-    }
 
     /* Hide center loading spinner */
     .shaka-spinner-container,
@@ -389,13 +308,11 @@
     .youtube-theme .shaka-seek-bar {
       background: rgba(255,255,255,.2) !important;
     }
-    
     .youtube-theme .shaka-buffered-range {
       background: rgba(255,255,255,.4) !important;
     }
-    
     .youtube-theme .shaka-played-range {
-      background: #00e5ff !important;
+      background: rgb(255,183,3) !important;
     }
 
     /* Manual play button styles */
@@ -411,268 +328,261 @@
       cursor: pointer;
       font-size: 18px;
       z-index: 2000;
-      border: 0px solid #ff0000;
+      border: 1px solid #ffb703;
       display: none;
       transition: all 0.3s ease;
     }
-    
     .manual-play-button:hover {
-      background: rgba(255, 0, 0, 0.8);
+      background: rgba(255, 183, 3, 0.85);
+      color:#1a0f00;
       transform: translate(-50%, -50%) scale(1.05);
-    }#myLogo {
-  position: absolute; right: 8px; top: 10px;
-  z-index: 1000; pointer-events: none; opacity: 0.85;
-  font-size: 13px; font-weight: 900; letter-spacing: 2px;
-  color: #00e5ff; text-shadow: 0 0 10px rgba(0,229,255,0.5);
-  font-family: Arial Black, sans-serif;
-}
-.whatsapp-popup {
-    position: fixed; 
-    top: 50%; 
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.95);
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(0,0,0,0.1);
-    padding: 2.5rem 2rem;
-    border-radius: 20px;
-    z-index: 10000;
-    text-align: center;
-    width: 90%; 
-    max-width: 400px;
-    display: none;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
-    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-}
+    }
+    #myLogo {width:60px;height:40px;
+      position: absolute;
+      right: 5px;
+      top: 10px;
+    }
 
-@keyframes popIn {
-    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-}
+    /* --- CRICKCAST join popup --- */
+    .cc-popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.94);
+        background: rgba(10, 12, 18, 0.9);
+        backdrop-filter: blur(22px);
+        -webkit-backdrop-filter: blur(22px);
+        border: 1px solid rgba(255,183,3,0.35);
+        padding: 2.4rem 2rem;
+        border-radius: 1.6rem;
+        z-index: 10000;
+        text-align: center;
+        width: 90%;
+        max-width: 380px;
+        display: none;
+        box-shadow: 0 30px 70px -15px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,183,3,0.08) inset;
+        font-family: 'Rajdhani', sans-serif;
+        animation: ccPopIn 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
 
-.whatsapp-popup h2 { 
-    color: #f0f6ff; 
-    font-size: 1.5rem; 
-    margin-bottom: 0.5rem; 
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-}
+    @keyframes ccPopIn {
+        to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
 
-.whatsapp-popup .wa-icon { 
-    color: #00e5ff; 
-    font-size: 1.8rem;
-}
+    .cc-popup h2 {
+        color: #fff;
+        font-size: 1.6rem;
+        font-weight: 700;
+        letter-spacing: .03em;
+        text-transform: uppercase;
+        margin-bottom: 0.6rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
 
-.whatsapp-popup p { 
-    color: #64748b; 
-    font-size: 0.95rem; 
-    margin-bottom: 1.5rem; 
-    line-height: 1.6;
-}
+    .cc-popup .wa-icon {
+        color: #25D366;
+        font-size: 1.7rem;
+    }
 
-.whatsapp-popup .popup-button {
-    width: 100%;
-    padding: 1rem;
-    margin-top: 0.75rem;
-    border-radius: 12px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 1rem;
-    text-decoration: none;
-    display: inline-block;
-    transition: transform 0.2s;
-    border: none;
-}
+    .cc-popup p {
+        color: #9aa1b5;
+        font-family: Arial, sans-serif;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
 
-.whatsapp-popup .join-btn {
-    background: #00e5ff;
-    color: white;
-    box-shadow: 0 4px 15px rgba(0,229,255,0.25);
-    border: none;
-}
+    .cc-popup .popup-button {
+        width: 100%;
+        padding: 0.95rem;
+        margin-top: 0.75rem;
+        border-radius: 0.85rem;
+        cursor: pointer;
+        font-weight: 700;
+        letter-spacing: .02em;
+        font-size: 1rem;
+        text-decoration: none;
+        display: inline-block;
+        transition: transform 0.2s, filter .2s;
+        border: none;
+        font-family: 'Rajdhani', sans-serif;
+    }
 
-.whatsapp-popup .join-btn:hover { 
-    transform: translateY(-2px); 
-    box-shadow: 0 8px 20px rgba(0,229,255,0.35); 
-}
+    .cc-popup .join-btn {
+        background: linear-gradient(135deg, #ffb703, #e08e00);
+        color: #1a0f00;
+        box-shadow: 0 10px 25px -8px rgba(255,183,3,0.5);
+        border: none;
+    }
 
-.whatsapp-popup .joined-btn {
-    background: transparent;
-    color: #64748b;
-    border: 1px solid rgba(0,0,0,0.1);
-}
+    .cc-popup .join-btn:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.05);
+    }
 
-.whatsapp-popup .joined-btn:hover { 
-    background: rgba(0,0,0,0.05); 
-    color: #f0f6ff; 
-}
+    .cc-popup .joined-btn {
+        background: transparent;
+        color: #8c93a8;
+        border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .cc-popup .joined-btn:hover {
+        background: rgba(255,255,255,0.05);
+        color: #fff;
+    }
 </style>
 
 
-  
 </head>
-<div class="whatsapp-popup" id="whatsappPopup">
-    <h2><span class="wa-icon">📡</span> CRICKCAST LIVE</h2>
-    <p>Get live stream links, match alerts, and exclusive content on our official Telegram channel.</p>
-    <a href="https://t.me/addlist/6qALMSdKoVVkNWI1" target="_blank" rel="noopener noreferrer" class="popup-button join-btn">Join Telegram Channel</a>
-    <button class="popup-button joined-btn" onclick="document.getElementById('whatsappPopup').style.display='none';">Already Joined</button>
+<div class="cc-popup" id="whatsappPopup">
+    <h2><span class="wa-icon">📱</span> Join CRICKCAST</h2>
+    <p>Get instant updates, match alerts, and exclusive live links on our official channel.</p>
+    <a href="https://whatsapp.com/channel/0029VbC2oQsC6ZvmwpR3v73v" target="_blank" rel="noopener noreferrer" class="popup-button join-btn">Follow on WhatsApp</a>
+    <button class="popup-button joined-btn" onclick="document.getElementById('whatsappPopup').style.display='none';">Already Following</button>
 </div>
 
 <div class="video-container">
-<div id="myLogo">📡 CRICKCAST</div>
-
 <div class="shaka-video-container" data-shaka-player>
   <video id="video" autoplay muted playsinline preload="auto"></video>
-  
-
 </div></div>
-
 
 
 <script>
 
   const queryParams = new URLSearchParams(window.location.search);
-        const rawUrl = queryParams.get('url');
-  
-    // Proxy base for CORS bypass
-    const PROXY_BASE = '/api/proxy?u=';
-    const url = rawUrl ? PROXY_BASE + encodeURIComponent(rawUrl) : null;
-    
-    const channelstreamInfo = {  
-      streamUrl: url, 
-      authBearer: "",   
-      streamPoster: "https://raw.githubusercontent.com/abusaeeidx/Tv-Channel-Logo/heads/main/CricHD/runded/1745008895589.png"
-    };
+  const rawUrl = queryParams.get('url');
 
-    let player;
-    const video = document.getElementById('video');
+  // Proxy base for CORS bypass
+  const PROXY_BASE = '/api/proxy?u=';
+  const url = rawUrl ? PROXY_BASE + encodeURIComponent(rawUrl) : null;
 
-    async function initializePlayer() {
-      try {
-        // Initialize Shaka Player first for better HLS support
-        player = new shaka.Player();
-        await player.attach(video);
-
-
-
-const container = document.querySelector('.shaka-video-container');
-const ui = new shaka.ui.Overlay(player, container, video);
-  
-  // Custom UI configuration with seek bar colors
-  const config = {
-    'seekBarColors': {
-      base: 'rgba(255,255,255,.2)',
-      buffered: 'rgba(255,255,255,.4)',
-      played: '#00e5ff',
-    },
-    'controlPanelElements': [
-      'play_pause',
-      
-      'mute',
-      'time_and_duration',
-       'restart', 
-      'spacer',
-      'quality',
-        'language',
-
-      'picture_in_picture',
-      'fullscreen',
-
-      'overflow_menu'
-    ]
+  const channelstreamInfo = {
+    streamUrl: url,
+    authBearer: "",
+    streamPoster: "https://raw.githubusercontent.com/abusaeeidx/Tv-Channel-Logo/heads/main/CricHD/runded/1745008895589.png"
   };
-  
-  ui.configure(config);
-  const controls = ui.getControls();
 
-        // Configure player for better performance
-        player.configure({
-          streaming: {
-            bufferingGoal: 10,
-            rebufferingGoal: 2,
-            bufferBehind: 30
-          },
-          manifest: {
-            retryParameters: {
-              timeout: 30000,
-              maxAttempts: 2,
-              baseDelay: 1000,
-              backoffFactor: 2,
-              fuzzFactor: 0.5
-            }
+  let player;
+  const video = document.getElementById('video');
+
+  async function initializePlayer() {
+    try {
+      // Initialize Shaka Player first for better HLS support
+      player = new shaka.Player();
+      await player.attach(video);
+
+      const container = document.querySelector('.shaka-video-container');
+      const ui = new shaka.ui.Overlay(player, container, video);
+
+      // Custom UI configuration with seek bar colors
+      const config = {
+        'seekBarColors': {
+          base: 'rgba(255,255,255,.2)',
+          buffered: 'rgba(255,255,255,.4)',
+          played: 'rgb(255,183,3)',
+        },
+        'controlPanelElements': [
+          'play_pause',
+          'mute',
+          'time_and_duration',
+          'restart',
+          'spacer',
+          'quality',
+          'language',
+          'picture_in_picture',
+          'fullscreen',
+          'overflow_menu'
+        ]
+      };
+
+      ui.configure(config);
+      const controls = ui.getControls();
+
+      // Configure player for better performance
+      player.configure({
+        streaming: {
+          bufferingGoal: 10,
+          rebufferingGoal: 2,
+          bufferBehind: 30
+        },
+        manifest: {
+          retryParameters: {
+            timeout: 30000,
+            maxAttempts: 2,
+            baseDelay: 1000,
+            backoffFactor: 2,
+            fuzzFactor: 0.5
           }
-        });
-
-        
-
-        // Set video properties for autoplay
-        video.autoplay = true;
-        video.controls = false;
-        video.volume = 1;
-        video.muted = false;
-        video.preload = 'auto';
-
-        console.log(`Loading stream: ${channelstreamInfo.streamUrl}`);
-        
-        // Load the stream
-        await player.load(channelstreamInfo.streamUrl);
-        
-console.log('Stream loaded successfully.');
-
-        // Force autoplay with multiple attempts
-        const attemptAutoplay = async () => {
-          try {
-            await video.play();
-            console.log('Autoplay successful');
-          } catch (playError) {
-            console.log('Autoplay blocked, trying with muted audio');
-            video.muted = true;
-            try {
-              await video.play();
-              console.log('Autoplay successful with muted audio');
-            } catch (mutedError) {
-              console.log('Autoplay failed completely, user interaction required');
-            }
-          }
-        };
-
-        // Immediate autoplay attempt
-        if (video.readyState >= 2) {
-          await attemptAutoplay();
-        } else {
-          video.addEventListener('canplay', attemptAutoplay, { once: true });
         }
+      });
 
-      } catch (error) {
-        console.error('Error initializing player:', error);
-        
-        // Fallback to direct video source
-        video.src = channelstreamInfo.streamUrl;
-        video.autoplay = true;
-        video.muted = false;
-        
+      // Set video properties for autoplay
+      video.autoplay = true;
+      video.controls = false;
+      video.volume = 1;
+      video.muted = false;
+      video.preload = 'auto';
+
+      console.log(`Loading stream: ${channelstreamInfo.streamUrl}`);
+
+      // Load the stream
+      await player.load(channelstreamInfo.streamUrl);
+
+      console.log('Stream loaded successfully.');
+
+      // Force autoplay with multiple attempts
+      const attemptAutoplay = async () => {
         try {
           await video.play();
-        } catch (fallbackError) {
+          console.log('Autoplay successful');
+        } catch (playError) {
+          console.log('Autoplay blocked, trying with muted audio');
           video.muted = true;
-          await video.play();
+          try {
+            await video.play();
+            console.log('Autoplay successful with muted audio');
+          } catch (mutedError) {
+            console.log('Autoplay failed completely, user interaction required');
+          }
         }
+      };
+
+      // Immediate autoplay attempt
+      if (video.readyState >= 2) {
+        await attemptAutoplay();
+      } else {
+        video.addEventListener('canplay', attemptAutoplay, { once: true });
+      }
+
+    } catch (error) {
+      console.error('Error initializing player:', error);
+
+      // Fallback to direct video source
+      video.src = channelstreamInfo.streamUrl;
+      video.autoplay = true;
+      video.muted = false;
+
+      try {
+        await video.play();
+      } catch (fallbackError) {
+        video.muted = true;
+        await video.play();
       }
     }
-        
+  }
 
-        
-      
   // Initialize player when page loads
-    document.addEventListener('DOMContentLoaded', () => {
-      initializePlayer().catch(error => {
-        console.error('Error initializing player:', error);
-      });
+  document.addEventListener('DOMContentLoaded', () => {
+    initializePlayer().catch(error => {
+      console.error('Error initializing player:', error);
     });
+  });
 
-// Show popup after delay (2 seconds)
-setTimeout(() => { 
-    document.getElementById('whatsappPopup').style.display = 'block'; 
-}, 2000);
+  // Show popup after delay (2 seconds)
+  setTimeout(() => {
+    document.getElementById('whatsappPopup').style.display = 'block';
+  }, 2000);
 </script>
