@@ -1,0 +1,83 @@
+<svg width="1100" height="520" viewBox="0 0 1100 520" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="pbg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#05060a"/>
+      <stop offset="100%" stop-color="#0b0e17"/>
+    </linearGradient>
+    <linearGradient id="cardImg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a2030"/>
+      <stop offset="100%" stop-color="#0c0f18"/>
+    </linearGradient>
+    <linearGradient id="btn" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffb703"/>
+      <stop offset="100%" stop-color="#e08e00"/>
+    </linearGradient>
+    <style>
+      .card{ fill:#10131d; stroke:#262b3c; stroke-width:1; }
+      .cardHot{ fill:#12141f; stroke:#ffb703; stroke-width:1.4; }
+      .t1{ font-family:Arial, Helvetica, sans-serif; font-weight:700; font-size:15; fill:#eef1f8; }
+      .t2{ font-family:Arial, Helvetica, sans-serif; font-size:11; fill:#8c93a8; }
+      .mono{ font-family:Courier New, monospace; font-size:9.5; fill:#8c93a8; }
+      .chip{ fill:#171c29; stroke:#2a2f42; stroke-width:1; }
+    </style>
+  </defs>
+
+  <rect width="1100" height="520" fill="url(#pbg)"/>
+
+  <!-- ticker bar -->
+  <rect x="0" y="0" width="1100" height="30" fill="#0c0f18" stroke="#1c2130" stroke-width="1"/>
+  <circle cx="24" cy="15" r="3.5" fill="#ff3b3b"/>
+  <text x="36" y="19" class="mono">LIVE — INDIA vs AUSTRALIA, 3RD T20I   •   LIVE — MI vs CSK, IPL 2026   •   LIVE — ENG vs NZ, TEST</text>
+
+  <!-- header -->
+  <text x="550" y="90" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="34" letter-spacing="5" fill="#ffb703">CRICKCAST</text>
+  <text x="550" y="112" text-anchor="middle" class="mono" letter-spacing="4">LIVE SPORTS · ZERO BUFFER</text>
+
+  <!-- three match cards -->
+  <g transform="translate(60,150)">
+    <rect width="300" height="320" rx="20" class="cardHot"/>
+    <rect x="0" y="0" width="300" height="130" rx="20" fill="url(#cardImg)"/>
+    <rect x="16" y="16" width="52" height="20" rx="10" fill="#2a0f0f" stroke="#ff3b3b"/>
+    <circle cx="26" cy="26" r="3" fill="#ff3b3b"/>
+    <text x="34" y="30" font-family="Courier New, monospace" font-size="8.5" fill="#ff8a8a">LIVE</text>
+    <text x="20" y="160" class="t2">ICC WORLD CUP</text>
+    <text x="20" y="182" class="t1">India vs Australia</text>
+    <rect x="20" y="198" width="110" height="26" rx="8" class="chip"/>
+    <text x="30" y="215" class="t2">INDIA</text>
+    <rect x="170" y="198" width="110" height="26" rx="8" class="chip"/>
+    <text x="180" y="215" class="t2">AUSTRALIA</text>
+    <rect x="20" y="264" width="260" height="40" rx="12" fill="url(#btn)"/>
+    <text x="150" y="289" text-anchor="middle" font-family="Arial" font-weight="700" font-size="13" fill="#1a0f00">▶ WATCH LIVE</text>
+  </g>
+
+  <g transform="translate(400,150)">
+    <rect width="300" height="320" rx="20" class="card"/>
+    <rect x="0" y="0" width="300" height="130" rx="20" fill="url(#cardImg)"/>
+    <text x="20" y="160" class="t2">IPL 2026</text>
+    <text x="20" y="182" class="t1">Mumbai vs Chennai</text>
+    <rect x="20" y="198" width="110" height="26" rx="8" class="chip"/>
+    <text x="30" y="215" class="t2">MUMBAI</text>
+    <rect x="170" y="198" width="110" height="26" rx="8" class="chip"/>
+    <text x="180" y="215" class="t2">CHENNAI</text>
+    <rect x="20" y="264" width="260" height="40" rx="12" fill="#171c29" stroke="#2a2f42"/>
+    <text x="150" y="289" text-anchor="middle" font-family="Arial" font-weight="700" font-size="13" fill="#5c6478">⏳ UPCOMING</text>
+  </g>
+
+  <g transform="translate(740,150)">
+    <rect width="300" height="320" rx="20" class="cardHot"/>
+    <rect x="0" y="0" width="300" height="130" rx="20" fill="url(#cardImg)"/>
+    <rect x="16" y="16" width="52" height="20" rx="10" fill="#2a0f0f" stroke="#ff3b3b"/>
+    <circle cx="26" cy="26" r="3" fill="#ff3b3b"/>
+    <text x="34" y="30" font-family="Courier New, monospace" font-size="8.5" fill="#ff8a8a">LIVE</text>
+    <text x="20" y="160" class="t2">TEST CHAMPIONSHIP</text>
+    <text x="20" y="182" class="t1">England vs New Zealand</text>
+    <rect x="20" y="198" width="110" height="26" rx="8" class="chip"/>
+    <text x="30" y="215" class="t2">ENGLAND</text>
+    <rect x="170" y="198" width="110" height="26" rx="8" class="chip"/>
+    <text x="180" y="215" class="t2">N. ZEALAND</text>
+    <rect x="20" y="264" width="260" height="40" rx="12" fill="url(#btn)"/>
+    <text x="150" y="289" text-anchor="middle" font-family="Arial" font-weight="700" font-size="13" fill="#1a0f00">▶ WATCH LIVE</text>
+  </g>
+
+  <text x="550" y="500" text-anchor="middle" class="mono" letter-spacing="2">ILLUSTRATIVE UI PREVIEW — NOT A LIVE SCREENSHOT</text>
+</svg>

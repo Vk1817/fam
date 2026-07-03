@@ -1,0 +1,75 @@
+<svg width="1100" height="460" viewBox="0 0 1100 460" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="abg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#05060a"/>
+      <stop offset="100%" stop-color="#0a0d17"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#ffb703"/>
+    </marker>
+    <style>
+      .box{ fill:#10131d; stroke:#2a2f42; stroke-width:1.4; rx:14; }
+      .boxAccent{ fill:#151222; stroke:#ffb703; stroke-width:1.4; rx:14; }
+      .label{ font-family:Arial, Helvetica, sans-serif; font-size:15; font-weight:700; fill:#eef1f8; }
+      .sub{ font-family:Courier New, monospace; font-size:11; fill:#8c93a8; }
+      .step{ font-family:Courier New, monospace; font-size:11; fill:#ffd166; }
+      .edge{ stroke:#ffb703; stroke-width:1.6; fill:none; marker-end:url(#arrow); opacity:0.85; }
+    </style>
+  </defs>
+
+  <rect width="1100" height="460" fill="url(#abg)"/>
+
+  <!-- Node 1: Data feed -->
+  <rect x="40" y="40" width="230" height="80" class="box"/>
+  <text x="60" y="70" class="label">Live Events Feed</text>
+  <text x="60" y="90" class="sub">fancode.json (public)</text>
+
+  <!-- Node 2: index.html -->
+  <rect x="40" y="190" width="230" height="90" class="boxAccent"/>
+  <text x="60" y="220" class="label">index.html</text>
+  <text x="60" y="240" class="sub">fetch + render match grid</text>
+  <text x="60" y="256" class="sub">live ticker · 3D cards</text>
+
+  <!-- Node 3: fc-play.html -->
+  <rect x="420" y="190" width="250" height="90" class="boxAccent"/>
+  <text x="440" y="220" class="label">fc-play.html</text>
+  <text x="440" y="240" class="sub">Shaka Player UI</text>
+  <text x="440" y="256" class="sub">requests /api/proxy?u=…</text>
+
+  <!-- Node 4: proxy.js -->
+  <rect x="420" y="40" width="250" height="90" class="box"/>
+  <text x="440" y="70" class="label">functions/api/proxy.js</text>
+  <text x="440" y="90" class="sub">Cloudflare Pages Function</text>
+  <text x="440" y="106" class="sub">CORS + m3u8 URL rewrite</text>
+
+  <!-- Node 5: Origin CDN -->
+  <rect x="830" y="40" width="230" height="80" class="box"/>
+  <text x="850" y="70" class="label">Origin Stream CDN</text>
+  <text x="850" y="90" class="sub">.m3u8 / segment files</text>
+
+  <!-- Node 6: Viewer -->
+  <rect x="830" y="190" width="230" height="90" class="boxAccent"/>
+  <text x="850" y="220" class="label">Viewer</text>
+  <text x="850" y="240" class="sub">adaptive HLS playback</text>
+  <text x="850" y="256" class="sub">in the browser</text>
+
+  <!-- edges -->
+  <path class="edge" d="M155,120 L155,190"/>
+  <text x="165" y="158" class="step">1. fetch on load</text>
+
+  <path class="edge" d="M270,235 L420,235"/>
+  <text x="290" y="222" class="step">2. click "Watch Live"</text>
+
+  <path class="edge" d="M545,190 L545,130"/>
+  <text x="555" y="165" class="step">3. request proxy</text>
+
+  <path class="edge" d="M670,80 L830,80"/>
+  <text x="690" y="68" class="step">4. fetch origin</text>
+
+  <path class="edge" d="M945,120 L945,190"/>
+  <text x="800" y="158" class="step" text-anchor="end">5. rewritten stream</text>
+
+  <path class="edge" d="M670,235 L830,235"/>
+  <text x="690" y="222" class="step">6. play in Shaka</text>
+
+</svg>
