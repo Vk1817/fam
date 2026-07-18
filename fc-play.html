@@ -488,7 +488,6 @@
           'play_pause',
           'mute',
           'time_and_duration',
-          'restart',
           'spacer',
           'quality',
           'language',
@@ -528,6 +527,12 @@
 
       console.log(`Loading stream: ${channelstreamInfo.streamUrl}`);
 
+      // Surface the real Shaka error (code/category/message) instead of a minified object
+      player.addEventListener('error', (event) => {
+        const e = event.detail;
+        console.error('Shaka runtime error ->', 'code:', e.code, 'category:', e.category, 'severity:', e.severity, 'data:', e.data, 'message:', e.message);
+      });
+
       // Load the stream
       await player.load(channelstreamInfo.streamUrl);
 
@@ -558,18 +563,27 @@
       }
 
     } catch (error) {
-      console.error('Error initializing player:', error);
+      console.error('Error initializing player -> code:', error && error.code,
+        'category:', error && error.category,
+        'severity:', error && error.severity,
+        'data:', error && error.data,
+        'message:', error && error.message,
+        'raw:', error);
 
-      // Fallback to direct video source
-      video.src = channelstreamInfo.streamUrl;
-      video.autoplay = true;
-      video.muted = false;
-
-      try {
-        await video.play();
-      } catch (fallbackError) {
-        video.muted = true;
-        await video.play();
+      // Only fall back to a raw <video> src if the browser can actually play HLS natively (Safari/iOS).
+      // Every other browser will just throw NotSupportedError on a raw .m3u8, so don't bother there.
+      if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = channelstreamInfo.streamUrl;
+        video.autoplay = true;
+        video.muted = false;
+        try {
+          await video.play();
+        } catch (fallbackError) {
+          video.muted = true;
+          await video.play();
+        }
+      } else {
+        console.error('This browser cannot play HLS natively and Shaka failed to load the stream. See the error above for the real cause.');
       }
     }
   }
