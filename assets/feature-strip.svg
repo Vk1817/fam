@@ -1,0 +1,77 @@
+<svg width="1300" height="200" viewBox="0 0 1300 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="fbg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#05060a"/>
+      <stop offset="100%" stop-color="#0a0d17"/>
+    </linearGradient>
+    <linearGradient id="iconRing" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffd166"/>
+      <stop offset="100%" stop-color="#e08e00"/>
+    </linearGradient>
+    <style>
+      .cell   { fill:#10131d; stroke:#262b3c; stroke-width:1.2; }
+      .icon   { fill:none; stroke:#ffb703; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
+      .label  { font-family:'Segoe UI', Arial, sans-serif; font-weight:700; font-size:13px; fill:#eef1f8; text-anchor:middle; }
+      .sub    { font-family:'Segoe UI', Arial, sans-serif; font-size:10.5px; fill:#8c93a8; text-anchor:middle; }
+    </style>
+  </defs>
+
+  <rect width="1300" height="200" fill="url(#fbg)"/>
+
+  <!-- 6 evenly spaced feature cells -->
+  <!-- cell width 200, gap 16.66 -> start x = 20 -->
+
+  <!-- 1: Live ticker -->
+  <g transform="translate(20,20)">
+    <rect width="196" height="160" rx="18" class="cell"/>
+    <circle cx="98" cy="56" r="30" fill="none" stroke="url(#iconRing)" stroke-width="2.4"/>
+    <circle cx="98" cy="56" r="6" fill="#ff3b3b"/>
+    <path class="icon" d="M78,56 a20,20 0 1,1 40,0" opacity="0.6"/>
+    <text x="98" y="112" class="label">Live Ticker</text>
+    <text x="98" y="130" class="sub">real-time match bar</text>
+  </g>
+
+  <!-- 2: Adaptive cards -->
+  <g transform="translate(236,20)">
+    <rect width="196" height="160" rx="18" class="cell"/>
+    <rect x="70" y="34" width="56" height="44" rx="8" class="icon"/>
+    <rect x="82" y="88" width="32" height="6" rx="3" fill="#ffb703"/>
+    <text x="98" y="112" class="label">Match Cards</text>
+    <text x="98" y="130" class="sub">auto-refreshing grid</text>
+  </g>
+
+  <!-- 3: HLS playback -->
+  <g transform="translate(452,20)">
+    <rect width="196" height="160" rx="18" class="cell"/>
+    <circle cx="98" cy="56" r="30" class="icon"/>
+    <polygon points="88,42 88,70 114,56" fill="#ffb703"/>
+    <text x="98" y="112" class="label">HLS Playback</text>
+    <text x="98" y="130" class="sub">Shaka Player</text>
+  </g>
+
+  <!-- 4: Edge proxy -->
+  <g transform="translate(668,20)">
+    <rect width="196" height="160" rx="18" class="cell"/>
+    <path class="icon" d="M78,44 L118,44 L118,68 L98,68 L98,84 L78,84 Z"/>
+    <circle cx="118" cy="56" r="3" fill="#ffb703"/>
+    <text x="98" y="112" class="label">Edge Proxy</text>
+    <text x="98" y="130" class="sub">CORS + m3u8 rewrite</text>
+  </g>
+
+  <!-- 5: Self-healing feed -->
+  <g transform="translate(884,20)">
+    <rect width="196" height="160" rx="18" class="cell"/>
+    <path class="icon" d="M78,56 a20,20 0 1,0 6,-14 M84,32 L78,44 L92,44"/>
+    <text x="98" y="112" class="label">Self-Healing Feed</text>
+    <text x="98" y="130" class="sub">auto fallback source</text>
+  </g>
+
+  <!-- 6: Zero build -->
+  <g transform="translate(1100,20)">
+    <rect width="196" height="160" rx="18" class="cell"/>
+    <path class="icon" d="M88,36 L74,56 L88,76 M108,36 L122,56 L108,76"/>
+    <text x="98" y="112" class="label">Zero Build Step</text>
+    <text x="98" y="130" class="sub">push to deploy</text>
+  </g>
+
+</svg>

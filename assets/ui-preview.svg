@@ -1,4 +1,4 @@
-<svg width="1100" height="520" viewBox="0 0 1100 520" xmlns="http://www.w3.org/2000/svg">
+<svg width="1200" height="620" viewBox="0 0 1200 620" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="pbg" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#05060a"/>
@@ -15,69 +15,77 @@
     <style>
       .card{ fill:#10131d; stroke:#262b3c; stroke-width:1; }
       .cardHot{ fill:#12141f; stroke:#ffb703; stroke-width:1.4; }
-      .t1{ font-family:Arial, Helvetica, sans-serif; font-weight:700; font-size:15; fill:#eef1f8; }
-      .t2{ font-family:Arial, Helvetica, sans-serif; font-size:11; fill:#8c93a8; }
-      .mono{ font-family:Courier New, monospace; font-size:9.5; fill:#8c93a8; }
+      .t1{ font-family:'Segoe UI', Arial, sans-serif; font-weight:700; font-size:16px; fill:#eef1f8; }
+      .t2{ font-family:'Segoe UI', Arial, sans-serif; font-size:11.5px; fill:#8c93a8; }
+      .mono{ font-family:'Courier New', monospace; font-size:10px; fill:#8c93a8; }
       .chip{ fill:#171c29; stroke:#2a2f42; stroke-width:1; }
     </style>
   </defs>
 
-  <rect width="1100" height="520" fill="url(#pbg)"/>
+  <rect width="1200" height="620" fill="url(#pbg)"/>
 
-  <!-- ticker bar -->
-  <rect x="0" y="0" width="1100" height="30" fill="#0c0f18" stroke="#1c2130" stroke-width="1"/>
-  <circle cx="24" cy="15" r="3.5" fill="#ff3b3b"/>
-  <text x="36" y="19" class="mono">LIVE — INDIA vs AUSTRALIA, 3RD T20I   •   LIVE — MI vs CSK, IPL 2026   •   LIVE — ENG vs NZ, TEST</text>
+  <!-- ── browser chrome frame ── -->
+  <rect x="0" y="0" width="1200" height="44" fill="#0c0f18" stroke="#1c2130" stroke-width="1"/>
+  <circle cx="26" cy="22" r="6.5" fill="#ff5f57"/>
+  <circle cx="48" cy="22" r="6.5" fill="#febc2e"/>
+  <circle cx="70" cy="22" r="6.5" fill="#28c840"/>
+  <rect x="420" y="10" width="360" height="24" rx="12" fill="#161a26" stroke="#262b3c"/>
+  <text x="600" y="26" text-anchor="middle" class="mono">🔒 crickcast.pages.dev</text>
 
-  <!-- header -->
-  <text x="550" y="90" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="34" letter-spacing="5" fill="#ffb703">CRICKCAST</text>
-  <text x="550" y="112" text-anchor="middle" class="mono" letter-spacing="4">LIVE SPORTS · ZERO BUFFER</text>
+  <!-- ── live ticker ── -->
+  <rect x="0" y="44" width="1200" height="30" fill="#0c0f18" stroke="#1c2130" stroke-width="1"/>
+  <circle cx="24" cy="59" r="3.5" fill="#ff3b3b"/>
+  <text x="36" y="63" class="mono">LIVE — INDIA vs AUSTRALIA, 3RD T20I &#8226; LIVE — MI vs CSK, IPL 2026 &#8226; LIVE — ENG vs NZ, TEST</text>
 
-  <!-- three match cards -->
-  <g transform="translate(60,150)">
-    <rect width="300" height="320" rx="20" class="cardHot"/>
-    <rect x="0" y="0" width="300" height="130" rx="20" fill="url(#cardImg)"/>
-    <rect x="16" y="16" width="52" height="20" rx="10" fill="#2a0f0f" stroke="#ff3b3b"/>
-    <circle cx="26" cy="26" r="3" fill="#ff3b3b"/>
-    <text x="34" y="30" font-family="Courier New, monospace" font-size="8.5" fill="#ff8a8a">LIVE</text>
-    <text x="20" y="160" class="t2">ICC WORLD CUP</text>
-    <text x="20" y="182" class="t1">India vs Australia</text>
-    <rect x="20" y="198" width="110" height="26" rx="8" class="chip"/>
-    <text x="30" y="215" class="t2">INDIA</text>
-    <rect x="170" y="198" width="110" height="26" rx="8" class="chip"/>
-    <text x="180" y="215" class="t2">AUSTRALIA</text>
-    <rect x="20" y="264" width="260" height="40" rx="12" fill="url(#btn)"/>
-    <text x="150" y="289" text-anchor="middle" font-family="Arial" font-weight="700" font-size="13" fill="#1a0f00">▶ WATCH LIVE</text>
+  <!-- ── header ── -->
+  <text x="600" y="140" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-weight="800" font-size="36" letter-spacing="5" fill="#ffb703">CRICKCAST</text>
+  <text x="600" y="163" text-anchor="middle" class="mono" letter-spacing="4">LIVE SPORTS &#8226; ZERO BUFFER</text>
+
+  <!-- ── three match cards ── -->
+  <g transform="translate(66,200)">
+    <rect width="330" height="340" rx="22" class="cardHot"/>
+    <rect x="0" y="0" width="330" height="140" rx="22" fill="url(#cardImg)"/>
+    <rect x="18" y="18" width="58" height="22" rx="11" fill="#2a0f0f" stroke="#ff3b3b"/>
+    <circle cx="29" cy="29" r="3" fill="#ff3b3b"/>
+    <text x="38" y="33" font-family="'Courier New', monospace" font-size="9" fill="#ff8a8a">LIVE</text>
+    <text x="22" y="172" class="t2">ICC WORLD CUP</text>
+    <text x="22" y="196" class="t1">India vs Australia</text>
+    <rect x="22" y="214" width="122" height="28" rx="9" class="chip"/>
+    <text x="33" y="232" class="t2">INDIA</text>
+    <rect x="186" y="214" width="122" height="28" rx="9" class="chip"/>
+    <text x="197" y="232" class="t2">AUSTRALIA</text>
+    <rect x="22" y="282" width="286" height="42" rx="13" fill="url(#btn)"/>
+    <text x="165" y="308" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-weight="700" font-size="13.5" fill="#1a0f00">&#9654; WATCH LIVE</text>
   </g>
 
-  <g transform="translate(400,150)">
-    <rect width="300" height="320" rx="20" class="card"/>
-    <rect x="0" y="0" width="300" height="130" rx="20" fill="url(#cardImg)"/>
-    <text x="20" y="160" class="t2">IPL 2026</text>
-    <text x="20" y="182" class="t1">Mumbai vs Chennai</text>
-    <rect x="20" y="198" width="110" height="26" rx="8" class="chip"/>
-    <text x="30" y="215" class="t2">MUMBAI</text>
-    <rect x="170" y="198" width="110" height="26" rx="8" class="chip"/>
-    <text x="180" y="215" class="t2">CHENNAI</text>
-    <rect x="20" y="264" width="260" height="40" rx="12" fill="#171c29" stroke="#2a2f42"/>
-    <text x="150" y="289" text-anchor="middle" font-family="Arial" font-weight="700" font-size="13" fill="#5c6478">⏳ UPCOMING</text>
+  <g transform="translate(434,200)">
+    <rect width="330" height="340" rx="22" class="card"/>
+    <rect x="0" y="0" width="330" height="140" rx="22" fill="url(#cardImg)"/>
+    <text x="22" y="172" class="t2">IPL 2026</text>
+    <text x="22" y="196" class="t1">Mumbai vs Chennai</text>
+    <rect x="22" y="214" width="122" height="28" rx="9" class="chip"/>
+    <text x="33" y="232" class="t2">MUMBAI</text>
+    <rect x="186" y="214" width="122" height="28" rx="9" class="chip"/>
+    <text x="197" y="232" class="t2">CHENNAI</text>
+    <rect x="22" y="282" width="286" height="42" rx="13" fill="#171c29" stroke="#2a2f42"/>
+    <text x="165" y="308" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-weight="700" font-size="13.5" fill="#5c6478">&#9203; UPCOMING</text>
   </g>
 
-  <g transform="translate(740,150)">
-    <rect width="300" height="320" rx="20" class="cardHot"/>
-    <rect x="0" y="0" width="300" height="130" rx="20" fill="url(#cardImg)"/>
-    <rect x="16" y="16" width="52" height="20" rx="10" fill="#2a0f0f" stroke="#ff3b3b"/>
-    <circle cx="26" cy="26" r="3" fill="#ff3b3b"/>
-    <text x="34" y="30" font-family="Courier New, monospace" font-size="8.5" fill="#ff8a8a">LIVE</text>
-    <text x="20" y="160" class="t2">TEST CHAMPIONSHIP</text>
-    <text x="20" y="182" class="t1">England vs New Zealand</text>
-    <rect x="20" y="198" width="110" height="26" rx="8" class="chip"/>
-    <text x="30" y="215" class="t2">ENGLAND</text>
-    <rect x="170" y="198" width="110" height="26" rx="8" class="chip"/>
-    <text x="180" y="215" class="t2">N. ZEALAND</text>
-    <rect x="20" y="264" width="260" height="40" rx="12" fill="url(#btn)"/>
-    <text x="150" y="289" text-anchor="middle" font-family="Arial" font-weight="700" font-size="13" fill="#1a0f00">▶ WATCH LIVE</text>
+  <g transform="translate(802,200)">
+    <rect width="330" height="340" rx="22" class="cardHot"/>
+    <rect x="0" y="0" width="330" height="140" rx="22" fill="url(#cardImg)"/>
+    <rect x="18" y="18" width="58" height="22" rx="11" fill="#2a0f0f" stroke="#ff3b3b"/>
+    <circle cx="29" cy="29" r="3" fill="#ff3b3b"/>
+    <text x="38" y="33" font-family="'Courier New', monospace" font-size="9" fill="#ff8a8a">LIVE</text>
+    <text x="22" y="172" class="t2">TEST CHAMPIONSHIP</text>
+    <text x="22" y="196" class="t1">England vs New Zealand</text>
+    <rect x="22" y="214" width="122" height="28" rx="9" class="chip"/>
+    <text x="33" y="232" class="t2">ENGLAND</text>
+    <rect x="186" y="214" width="122" height="28" rx="9" class="chip"/>
+    <text x="197" y="232" class="t2">N. ZEALAND</text>
+    <rect x="22" y="282" width="286" height="42" rx="13" fill="url(#btn)"/>
+    <text x="165" y="308" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-weight="700" font-size="13.5" fill="#1a0f00">&#9654; WATCH LIVE</text>
   </g>
 
-  <text x="550" y="500" text-anchor="middle" class="mono" letter-spacing="2">ILLUSTRATIVE UI PREVIEW — NOT A LIVE SCREENSHOT</text>
+  <text x="600" y="592" text-anchor="middle" class="mono" letter-spacing="2">ILLUSTRATIVE UI PREVIEW — NOT A LIVE SCREENSHOT</text>
 </svg>

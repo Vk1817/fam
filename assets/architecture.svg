@@ -1,75 +1,122 @@
-<svg width="1100" height="460" viewBox="0 0 1100 460" xmlns="http://www.w3.org/2000/svg">
+<svg width="1300" height="640" viewBox="0 0 1300 640" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="abg" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#05060a"/>
       <stop offset="100%" stop-color="#0a0d17"/>
     </linearGradient>
-    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <linearGradient id="accentEdge" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffb703" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#ffb703" stop-opacity="0.55"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
       <path d="M0,0 L10,5 L0,10 z" fill="#ffb703"/>
     </marker>
     <style>
-      .box{ fill:#10131d; stroke:#2a2f42; stroke-width:1.4; rx:14; }
-      .boxAccent{ fill:#151222; stroke:#ffb703; stroke-width:1.4; rx:14; }
-      .label{ font-family:Arial, Helvetica, sans-serif; font-size:15; font-weight:700; fill:#eef1f8; }
-      .sub{ font-family:Courier New, monospace; font-size:11; fill:#8c93a8; }
-      .step{ font-family:Courier New, monospace; font-size:11; fill:#ffd166; }
-      .edge{ stroke:#ffb703; stroke-width:1.6; fill:none; marker-end:url(#arrow); opacity:0.85; }
+      .box     { fill:#10131d; stroke:#2a2f42; stroke-width:1.4; }
+      .boxHot  { fill:#151222; stroke:#ffb703; stroke-width:1.6; }
+      .title   { font-family:'Segoe UI', Arial, sans-serif; font-weight:700; font-size:15px; fill:#eef1f8; }
+      .sub     { font-family:'Segoe UI', Arial, sans-serif; font-size:11px; fill:#8c93a8; }
+      .kicker  { font-family:'Courier New', monospace; font-size:10.5px; letter-spacing:2px; fill:#5c6478; }
+      .edge    { stroke:#ffb703; stroke-width:1.8; fill:none; marker-end:url(#arrow); opacity:0.9; }
+      .edgeRet { stroke:#8b93ff; stroke-width:1.8; fill:none; marker-end:url(#arrow); opacity:0.9; stroke-dasharray:5,4; }
+      .badge   { fill:#05060a; stroke:#ffb703; stroke-width:1.4; }
+      .badgeRet{ fill:#05060a; stroke:#8b93ff; stroke-width:1.4; }
+      .badgeTx { font-family:'Courier New', monospace; font-size:12px; font-weight:700; fill:#ffd166; text-anchor:middle; }
+      .badgeTxRet { font-family:'Courier New', monospace; font-size:12px; font-weight:700; fill:#b9beff; text-anchor:middle; }
+      .legendNum { font-family:'Courier New', monospace; font-size:12px; font-weight:700; fill:#ffd166; }
+      .legendNumRet { font-family:'Courier New', monospace; font-size:12px; font-weight:700; fill:#b9beff; }
+      .legendTx  { font-family:'Segoe UI', Arial, sans-serif; font-size:12.5px; fill:#c4c9d8; }
     </style>
   </defs>
 
-  <rect width="1100" height="460" fill="url(#abg)"/>
+  <rect width="1300" height="640" fill="url(#abg)"/>
 
-  <!-- Node 1: Data feed -->
-  <rect x="40" y="40" width="230" height="80" class="box"/>
-  <text x="60" y="70" class="label">Live Events Feed</text>
-  <text x="60" y="90" class="sub">fancode.json (public)</text>
+  <text x="40" y="34" class="kicker">SYSTEM ARCHITECTURE</text>
+  <text x="40" y="58" class="title" font-size="18">Request &amp; Data Flow</text>
 
-  <!-- Node 2: index.html -->
-  <rect x="40" y="190" width="230" height="90" class="boxAccent"/>
-  <text x="60" y="220" class="label">index.html</text>
-  <text x="60" y="240" class="sub">fetch + render match grid</text>
-  <text x="60" y="256" class="sub">live ticker · 3D cards</text>
+  <!-- ══ ROW 1 — main pipeline ══ -->
+  <!-- Box 1 -->
+  <rect x="40"  y="150" width="190" height="110" rx="14" class="box"/>
+  <text x="62"  y="188" class="title">Live Events Feed</text>
+  <text x="62"  y="208" class="sub">public fancode.json</text>
+  <text x="62"  y="224" class="sub">upstream source</text>
 
-  <!-- Node 3: fc-play.html -->
-  <rect x="420" y="190" width="250" height="90" class="boxAccent"/>
-  <text x="440" y="220" class="label">fc-play.html</text>
-  <text x="440" y="240" class="sub">Shaka Player UI</text>
-  <text x="440" y="256" class="sub">requests /api/proxy?u=…</text>
+  <!-- Box 2 -->
+  <rect x="290" y="150" width="220" height="110" rx="14" class="box"/>
+  <text x="312" y="188" class="title">Auto-Mirror</text>
+  <text x="312" y="208" class="sub">GitHub Actions</text>
+  <text x="312" y="224" class="sub">cron · every 5 minutes</text>
 
-  <!-- Node 4: proxy.js -->
-  <rect x="420" y="40" width="250" height="90" class="box"/>
-  <text x="440" y="70" class="label">functions/api/proxy.js</text>
-  <text x="440" y="90" class="sub">Cloudflare Pages Function</text>
-  <text x="440" y="106" class="sub">CORS + m3u8 URL rewrite</text>
+  <!-- Box 3 -->
+  <rect x="570" y="150" width="190" height="110" rx="14" class="boxHot"/>
+  <text x="592" y="188" class="title">index.html</text>
+  <text x="592" y="208" class="sub">fetch on load + 60s</text>
+  <text x="592" y="224" class="sub">render match grid</text>
 
-  <!-- Node 5: Origin CDN -->
-  <rect x="830" y="40" width="230" height="80" class="box"/>
-  <text x="850" y="70" class="label">Origin Stream CDN</text>
-  <text x="850" y="90" class="sub">.m3u8 / segment files</text>
+  <!-- Box 4 -->
+  <rect x="820" y="150" width="210" height="110" rx="14" class="boxHot"/>
+  <text x="842" y="188" class="title">fc-play.html</text>
+  <text x="842" y="208" class="sub">Shaka Player UI</text>
+  <text x="842" y="224" class="sub">requests /api/proxy</text>
 
-  <!-- Node 6: Viewer -->
-  <rect x="830" y="190" width="230" height="90" class="boxAccent"/>
-  <text x="850" y="220" class="label">Viewer</text>
-  <text x="850" y="240" class="sub">adaptive HLS playback</text>
-  <text x="850" y="256" class="sub">in the browser</text>
+  <!-- Box 5 -->
+  <rect x="1080" y="150" width="180" height="110" rx="14" class="box"/>
+  <text x="1102" y="188" class="title">proxy.js</text>
+  <text x="1102" y="208" class="sub">edge function</text>
+  <text x="1102" y="224" class="sub">CORS + m3u8 rewrite</text>
 
-  <!-- edges -->
-  <path class="edge" d="M155,120 L155,190"/>
-  <text x="165" y="158" class="step">1. fetch on load</text>
+  <!-- ══ ROW 2 — origin CDN, sits below proxy ══ -->
+  <rect x="1080" y="400" width="180" height="100" rx="14" class="box"/>
+  <text x="1102" y="438" class="title" font-size="14">Origin CDN</text>
+  <text x="1102" y="458" class="sub">.m3u8 + segments</text>
+  <text x="1102" y="474" class="sub">+ encryption keys</text>
 
-  <path class="edge" d="M270,235 L420,235"/>
-  <text x="290" y="222" class="step">2. click "Watch Live"</text>
+  <!-- ── forward edges (row 1, left → right) ── -->
+  <path class="edge" d="M230,205 L290,205"/>
+  <circle cx="260" cy="205" r="13" class="badge"/>
+  <text x="260" y="209.5" class="badgeTx">1</text>
 
-  <path class="edge" d="M545,190 L545,130"/>
-  <text x="555" y="165" class="step">3. request proxy</text>
+  <path class="edge" d="M510,205 L570,205"/>
+  <circle cx="540" cy="205" r="13" class="badge"/>
+  <text x="540" y="209.5" class="badgeTx">2</text>
 
-  <path class="edge" d="M670,80 L830,80"/>
-  <text x="690" y="68" class="step">4. fetch origin</text>
+  <path class="edge" d="M760,205 L820,205"/>
+  <circle cx="790" cy="205" r="13" class="badge"/>
+  <text x="790" y="209.5" class="badgeTx">3</text>
 
-  <path class="edge" d="M945,120 L945,190"/>
-  <text x="800" y="158" class="step" text-anchor="end">5. rewritten stream</text>
+  <path class="edge" d="M1030,205 L1080,205"/>
+  <circle cx="1055" cy="205" r="13" class="badge"/>
+  <text x="1055" y="209.5" class="badgeTx">4</text>
 
-  <path class="edge" d="M670,235 L830,235"/>
-  <text x="690" y="222" class="step">6. play in Shaka</text>
+  <!-- proxy → origin CDN (down) -->
+  <path class="edge" d="M1220,260 L1220,400"/>
+  <circle cx="1220" cy="330" r="13" class="badge"/>
+  <text x="1220" y="334.5" class="badgeTx">5</text>
+
+  <!-- origin CDN → fc-play.html (rewritten stream returns, dashed) -->
+  <path class="edgeRet" d="M1080,450 L940,450 L940,260"/>
+  <circle cx="940" cy="375" r="13" class="badgeRet"/>
+  <text x="940" y="379.5" class="badgeTxRet">6</text>
+
+  <!-- ══ LEGEND — plenty of clear space, two columns ══ -->
+  <line x1="40" y1="535" x2="1260" y2="535" stroke="#1c2130" stroke-width="1.2"/>
+
+  <circle cx="52" cy="565" r="11" class="badge"/><text x="52" y="569" class="legendNum" text-anchor="middle">1</text>
+  <text x="76" y="569" class="legendTx">Data mirrored from the upstream feed on a 5-minute cron</text>
+
+  <circle cx="52" cy="597" r="11" class="badge"/><text x="52" y="601" class="legendNum" text-anchor="middle">2</text>
+  <text x="76" y="601" class="legendTx">index.html fetches the mirrored JSON on load and every 60s</text>
+
+  <circle cx="668" cy="565" r="11" class="badge"/><text x="668" y="569" class="legendNum" text-anchor="middle">3</text>
+  <text x="692" y="569" class="legendTx">Clicking "Watch Live" opens fc-play.html with the stream URL</text>
+
+  <circle cx="668" cy="597" r="11" class="badge"/><text x="668" y="601" class="legendNum" text-anchor="middle">4</text>
+  <text x="692" y="601" class="legendTx">Shaka Player requests the manifest via /api/proxy</text>
+
+  <circle cx="52" cy="629" r="11" class="badge"/><text x="52" y="633" class="legendNum" text-anchor="middle">5</text>
+  <text x="76" y="633" class="legendTx">proxy.js fetches the manifest + segments from the origin CDN</text>
+
+  <circle cx="668" cy="629" r="11" class="badgeRet"/><text x="668" y="633" class="legendNumRet" text-anchor="middle">6</text>
+  <text x="692" y="633" class="legendTx">Every URI is rewritten to route back through the proxy, then played</text>
 
 </svg>
