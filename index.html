@@ -1,399 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CRICKCAST LIVE</title>
-
-<!-- Tailwind + Font Awesome -->
-<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-:root {
-  --bg-color: #070b14;
-  --text-color: white;
-  --card-bg: rgba(12, 20, 35, 0.75);
-  --card-border: rgba(59, 130, 246, 0.18);
-  --card-hover-border: #3b82f6;
-  --card-shadow: 0 25px 40px -18px #000000;
-  --card-shadow-inset: 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
-  --card-hover-shadow: 0 35px 55px -18px #2563eb;
-  --card-hover-shadow-inset: 0 0 0 1.5px #3b82f6 inset;
-  --image-bg: #0c1422;
-  --image-border: rgba(59, 130, 246, 0.2);
-  --flag-bg: rgba(255, 255, 255, 0.03);
-  --flag-border: rgba(255, 255, 255, 0.06);
-  --flag-text: #e2e8f0;
-  --flag-icon-bg: #1e2a4a;
-  --title-gradient: linear-gradient(to right, #fff, #d9e6ff);
-  --watch-bg: linear-gradient(135deg, #2563eb, #1d4ed8);
-  --watch-shadow: 0 15px 20px -12px #1e3a8a;
-  --watch-notlive-bg: #1e293b;
-  --watch-notlive-color: #7789aa;
-  --watch-notlive-border: #334155;
-  --header-bg: #0f1a2b;
-  --header-border: rgba(29, 78, 216, 0.4);
-  --modal-bg: rgba(12, 22, 40, 0.95);
-  --quality-btn-bg: #1a2742;
-  --quality-btn-border: #314e7c;
-  --quality-btn-hover: #253b62;
-  --meta-color: #6f7d9c;
-}
-body.light-mode {
-  --bg-color: #f8fafc;
-  --text-color: #0f172a;
-  --card-bg: rgba(255, 255, 255, 0.85);
-  --card-border: rgba(0, 0, 0, 0.05);
-  --card-hover-border: #3b82f6;
-  --card-shadow: 0 15px 30px -10px rgba(0,0,0,0.08);
-  --card-shadow-inset: 0 0 0 1px rgba(0, 0, 0, 0.02) inset;
-  --card-hover-shadow: 0 25px 45px -10px rgba(59,130,246,0.25);
-  --card-hover-shadow-inset: 0 0 0 1.5px #3b82f6 inset;
-  --image-bg: #e2e8f0;
-  --image-border: rgba(0, 0, 0, 0.05);
-  --flag-bg: rgba(0, 0, 0, 0.02);
-  --flag-border: rgba(0, 0, 0, 0.08);
-  --flag-text: #334155;
-  --flag-icon-bg: #f8fafc;
-  --title-gradient: linear-gradient(to right, #0f172a, #334155);
-  --watch-bg: linear-gradient(135deg, #3b82f6, #2563eb);
-  --watch-shadow: 0 15px 20px -12px rgba(37,99,235,0.4);
-  --watch-notlive-bg: #e2e8f0;
-  --watch-notlive-color: #64748b;
-  --watch-notlive-border: #cbd5e1;
-  --header-bg: rgba(255, 255, 255, 0.85);
-  --header-border: rgba(0, 0, 0, 0.08);
-  --modal-bg: rgba(255, 255, 255, 0.95);
-  --quality-btn-bg: #f8fafc;
-  --quality-btn-border: #cbd5e1;
-  --quality-btn-hover: #f1f5f9;
-  --meta-color: #64748b;
-}
-body {
-  background: var(--bg-color);
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color: var(--text-color);
-  padding: 2rem 1.5rem 4rem;
-  max-width: 1440px;
-  margin: 0 auto;
-  transition: background 0.4s ease, color 0.4s ease;
-}
-.sleek-card {
-  background: var(--card-bg);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid var(--card-border);
-  border-radius: 2.8rem;
-  overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-  box-shadow: var(--card-shadow), var(--card-shadow-inset);
-  display: flex;
-  flex-direction: column;
-}
-.sleek-card:hover {
-  transform: translateY(-10px) scale(1.01);
-  border-color: var(--card-hover-border);
-  box-shadow: var(--card-hover-shadow), var(--card-hover-shadow-inset);
-}
-.sleek-image {
-  position: relative;
-  height: 220px;
-  background: var(--image-bg);
-  overflow: hidden;
-  border-bottom: 1px solid var(--image-border);
-}
-.sleek-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 15%;
-  transition: transform 0.7s ease, filter 0.5s ease;
-  filter: brightness(0.95) contrast(1.05);
-}
-.sleek-card:hover .sleek-image img {
-  transform: scale(1.07);
-  filter: brightness(1.05) contrast(1.1);
-}
-.live-glow {
-  position: absolute;
-  top: 18px;
-  left: 18px;
-  background: #dc2626;
-  color: white;
-  font-size: 0.7rem;
-  font-weight: 800;
-  padding: 0.4rem 1.2rem;
-  border-radius: 40px;
-  letter-spacing: 0.7px;
-  box-shadow: 0 0 20px #dc2626, 0 0 40px #dc2626aa;
-  border: 1px solid #ffb3b3;
-  backdrop-filter: blur(4px);
-  z-index: 10;
-  text-transform: uppercase;
-}
-.flag-strip {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin: 0.8rem 0 0.7rem;
-  flex-wrap: wrap;
-}
-.flag-pill {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--flag-bg);
-  border: 1px solid var(--flag-border);
-  padding: 0.3rem 1rem 0.3rem 0.6rem;
-  border-radius: 40px;
-  backdrop-filter: blur(4px);
-  transition: 0.2s;
-}
-.flag-pill:hover {
-  background: rgba(59, 130, 246, 0.15);
-  border-color: #3b82f6;
-}
-.flag-pill span {
-  font-weight: 600;
-  font-size: 0.8rem;
-  color: var(--flag-text);
-  letter-spacing: 0.2px;
-}
-.watch-sleek {
-  background: var(--watch-bg);
-  border: none;
-  border-radius: 24px;
-  padding: 1rem 1.2rem;
-  font-weight: 700;
-  font-size: 1rem;
-  text-align: center;
-  margin-top: auto;
-  cursor: pointer;
-  transition: all 0.25s;
-  box-shadow: var(--watch-shadow);
-  border: 1px solid #60a5fa60;
-  letter-spacing: 0.5px;
-  backdrop-filter: blur(5px);
-  color: white;
-}
-.watch-sleek i { margin-right: 8px; }
-.watch-sleek.not-live {
-  background: var(--watch-notlive-bg);
-  box-shadow: none;
-  color: var(--watch-notlive-color);
-  border-color: var(--watch-notlive-border);
-  cursor: not-allowed;
-  pointer-events: none;
-  opacity: 0.7;
-}
-.tourney-sleek {
-  color: #98a9c9;
-  font-weight: 600;
-  font-size: 0.7rem;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.title-sleek {
-  font-size: 1.4rem;
-  font-weight: 800;
-  line-height: 1.25;
-  margin: 0.2rem 0 0.1rem;
-  letter-spacing: -0.3px;
-  background: var(--title-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.meta-light {
-  display: flex;
-  gap: 1rem;
-  font-size: 0.7rem;
-  color: var(--meta-color);
-  font-weight: 500;
-  margin: 0.3rem 0 1rem;
-}
-.grid-sleek { gap: 2rem; }
-.status-banner {
-  text-align: center;
-  padding: 2rem;
-  font-size: 0.95rem;
-  color: var(--meta-color);
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="A simple, automatically refreshed live sports events dashboard powered by a public JSON feed." />
+  <title>Live Events</title>
+  <style>
+    :root{--bg:#07111f;--panel:#0d1b2d;--panel2:#102238;--text:#f7fbff;--muted:#9bb0c7;--line:#1c3550;--accent:#35c6ff;--live:#ff4d67;--shadow:0 18px 45px rgba(0,0,0,.25)}
+    *{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at top,#102846 0,#07111f 45%,#050b13 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;min-height:100vh}
+    a{color:inherit}.wrap{width:min(1180px,calc(100% - 32px));margin:auto}
+    header{padding:48px 0 30px;text-align:center}.brand{display:inline-flex;align-items:center;gap:12px;font-weight:900;font-size:clamp(28px,5vw,46px);letter-spacing:-1.5px}.brand-mark{width:48px;height:48px;border-radius:15px;background:linear-gradient(135deg,#35c6ff,#6d5cff);display:grid;place-items:center;box-shadow:0 12px 30px rgba(53,198,255,.22)}
+    .sub{margin:10px auto 0;color:var(--muted);max-width:650px;line-height:1.6}.bar{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin:14px 0 26px;padding:14px 16px;border:1px solid var(--line);background:rgba(13,27,45,.72);border-radius:18px;backdrop-filter:blur(12px)}
+    .count{color:var(--muted);font-size:14px}.refresh{border:1px solid #2b4968;background:#10243a;color:#eaf6ff;border-radius:12px;padding:9px 13px;font-weight:700;cursor:pointer}.refresh:hover{border-color:var(--accent)}
+    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;padding-bottom:55px}.card{overflow:hidden;border:1px solid var(--line);border-radius:20px;background:linear-gradient(180deg,var(--panel2),var(--panel));box-shadow:var(--shadow)}.cover{height:190px;background:#091522;position:relative}.cover img{width:100%;height:100%;object-fit:cover;display:block}.badge{position:absolute;top:14px;left:14px;padding:7px 10px;border-radius:999px;font-size:11px;font-weight:900;letter-spacing:.7px;background:#1b3046;border:1px solid #31516f}.badge.live{background:#4a1722;border-color:#8e3042;color:#ffdce2}.body{padding:18px}.category{font-size:11px;text-transform:uppercase;letter-spacing:1.4px;color:#77a0c3;font-weight:800}.title{font-size:19px;font-weight:850;line-height:1.3;margin:8px 0 13px}.teams{display:flex;gap:8px;flex-wrap:wrap}.team{padding:7px 10px;border-radius:10px;background:#0a1726;border:1px solid #203a54;color:#d9e9f7;font-size:13px}.meta{margin-top:15px;color:var(--muted);font-size:12px;line-height:1.6}.source{display:inline-block;margin-top:16px;text-decoration:none;color:#8ddfff;font-size:12px;font-weight:800}.source:hover{text-decoration:underline}.state{grid-column:1/-1;text-align:center;padding:55px 20px;border:1px dashed var(--line);border-radius:20px;color:var(--muted)}footer{padding:22px 0 42px;text-align:center;color:#70869e;font-size:12px;border-top:1px solid rgba(28,53,80,.65)}
+    @media(max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}} @media(max-width:620px){.wrap{width:min(100% - 22px,1180px)}header{padding-top:32px}.grid{grid-template-columns:1fr}.cover{height:205px}.bar{align-items:flex-start}}
+  </style>
 </head>
 <body>
+  <main class="wrap">
+    <header>
+      <div class="brand"><span class="brand-mark">◉</span><span>LIVE EVENTS</span></div>
+      <p class="sub">A lightweight sports-events dashboard that automatically reads the latest match information from the configured public JSON feed.</p>
+    </header>
+    <div class="bar"><div class="count" id="count">Loading events…</div><button class="refresh" id="refresh">↻ Refresh</button></div>
+    <section class="grid" id="events" aria-live="polite"><div class="state">Loading the latest events…</div></section>
+  </main>
+  <footer>Data refreshes automatically. This frontend does not store a local copy of the feed.</footer>
+  <script>
+    const DATA_URL = 'https://raw.githubusercontent.com/drmlive/fancode-live-events/main/fancode.json';
+    const REFRESH_MS = 60_000;
+    const fallbackImage = 'https://www.fancode.com/skillup-uploads/cms-media/Cricket_Fallback_Old_match-card.jpg';
+    const eventsEl = document.getElementById('events');
+    const countEl = document.getElementById('count');
+    const refreshEl = document.getElementById('refresh');
 
-<!-- header -->
-<div class="text-center mb-14 mt-2">
-  <div class="inline-flex items-center gap-4 py-4 px-10 rounded-full shadow-2xl backdrop-blur-xl transition-all duration-300" style="background: var(--header-bg); border: 1px solid var(--header-border);">
-    <i class="fas fa-satellite-dish text-cyan-400 text-xl"></i>
-    <span class="text-3xl font-black tracking-wider bg-clip-text text-transparent theme-title-gradient" style="background-image: var(--title-gradient);">
-      CRICKCAST LIVE
-    </span>
-  </div>
-  <p class="text-gray-500 text-xs mt-4 tracking-[0.3rem] font-mono">FanCode HD · Live Sports Streaming</p>
+    const esc = (value='') => String(value).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 
-  <div class="mt-5">
-    <button id="theme-toggle" class="p-3 px-5 rounded-full shadow-lg backdrop-blur-xl transition-all hover:scale-110 active:scale-95"
-      style="background: var(--header-bg); border: 1px solid var(--header-border); color: var(--text-color); font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
-      <i class="fas fa-sun" id="theme-icon"></i>
-      <span id="theme-label">Light Mode</span>
-    </button>
-    <a href="https://t.me/addlist/6qALMSdKoVVkNWI1" target="_blank"
-      style="margin-top:12px;display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:9999px;background:linear-gradient(135deg,rgba(0,229,255,0.12),rgba(123,97,255,0.12));border:1px solid rgba(0,229,255,0.25);color:#00e5ff;font-size:0.85rem;font-weight:700;text-decoration:none;letter-spacing:0.5px;">
-      <i class="fab fa-telegram"></i> Join Telegram
-    </a>
-  </div>
-</div>
-
-<div id="matches-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
-
-<script>
-// ── CONFIG ────────────────────────────────────────────────────────────
-// Primary source: Pranav's own auto-updated mirror (5-min cron via GitHub Actions).
-// Falls back to the upstream drmlive feed directly if the mirror is ever unreachable,
-// so the site never goes fully blank just because one raw file 404s or the Action
-// hasn't run yet.
-const PRIMARY_DATA_URL = "https://raw.githubusercontent.com/Vk1817/Fancode_autoupdate/main/pranav.json";
-const FALLBACK_DATA_URL = "https://raw.githubusercontent.com/drmlive/fancode-live-events/main/fancode.json";
-const PLAYER_URL = "/fc-play?url=";
-const REFRESH_INTERVAL_MS = 60 * 1000; // re-check every minute so LIVE badges/streams update themselves
-
-const container = document.getElementById('matches-container');
-let allMatches = [];
-
-function renderMatches(matches) {
-  container.innerHTML = '';
-
-  if (!matches.length) {
-    container.innerHTML = '<div class="col-span-full status-banner">No matches in the feed right now.</div>';
-    return;
-  }
-
-  matches.forEach((match, idx) => {
-    const isLive = match.status === 'LIVE';
-    const imageSrc = match.src || 'https://www.fancode.com/skillup-uploads/cms-media/Cricket_Fallback_Old_match-card.jpg';
-    const category = match.event_category || 'Sports';
-
-    let teamHtml = '';
-    if (match.team_1 && match.team_2) {
-      teamHtml = `
-        <div class="flag-strip">
-          <div class="flag-pill"><span>${match.team_1}</span></div>
-          <div class="flag-pill"><span>${match.team_2}</span></div>
-          <span class="ml-auto text-[0.65rem] font-bold bg-blue-900/70 px-4 py-1.5 rounded-full border border-blue-600/60">${category}</span>
-        </div>`;
+    function render(matches){
+      if(!matches.length){eventsEl.innerHTML='<div class="state">No events are available in the feed right now.</div>';countEl.textContent='0 events';return;}
+      const sorted=[...matches].sort((a,b)=> (a.status==='LIVE'?0:1)-(b.status==='LIVE'?0:1));
+      eventsEl.innerHTML=sorted.map(m=>{
+        const live=String(m.status||'').toUpperCase()==='LIVE';
+        const image=esc(m.src||fallbackImage);
+        const title=esc(m.match_name||m.title||'Live Event');
+        const category=esc(m.event_category||'Sports');
+        const event=esc(m.event_name||m.title||'Event');
+        const t1=esc(m.team_1||''); const t2=esc(m.team_2||'');
+        const time=esc(m.startTime||'Time unavailable');
+        return `<article class="card"><div class="cover"><img src="${image}" alt="${title}" loading="lazy" onerror="this.src='${fallbackImage}'">${live?'<span class="badge live">● LIVE</span>':'<span class="badge">UPCOMING</span>'}</div><div class="body"><div class="category">${category}</div><div class="title">${title}</div><div class="teams">${t1?`<span class="team">${t1}</span>`:''}${t2?`<span class="team">${t2}</span>`:''}</div><div class="meta">${event}<br>${time}</div><a class="source" href="https://github.com/drmlive/fancode-live-events/blob/main/fancode.json" target="_blank" rel="noopener noreferrer">View feed record ↗</a></div></article>`;
+      }).join('');
+      countEl.textContent=`${matches.length} event${matches.length===1?'':'s'} · ${sorted.filter(m=>String(m.status||'').toUpperCase()==='LIVE').length} live`;
     }
 
-    // A match only actually has something to play if it's LIVE *and* carries a
-    // real stream URL. Missing either of these means "structure only" — the
-    // exact case that used to render a dead WATCH LIVE button.
-    const hasStream = isLive && (match.adfree_url || match.dai_url);
-    const watchAction = hasStream ? `playStream(${idx})` : '';
-    const watchBtnClass = hasStream ? 'watch-sleek' : 'watch-sleek not-live';
-    const watchIcon = isLive
-      ? (hasStream ? '<i class="fas fa-play-circle"></i> WATCH LIVE' : '<i class="fas fa-lock"></i> NO STREAM YET')
-      : '<i class="fas fa-hourglass-half"></i> UPCOMING';
-
-    const card = document.createElement('div');
-    card.className = 'sleek-card';
-    card.innerHTML = `
-      <div class="sleek-image">
-        <img src="${imageSrc}" alt="match cover" loading="lazy" onerror="this.src='https://www.fancode.com/skillup-uploads/cms-media/Cricket_Fallback_Old_match-card.jpg'">
-        ${isLive ? '<span class="live-glow"><i class="fas fa-circle text-[0.5rem] mr-1 align-middle"></i> LIVE</span>' : ''}
-      </div>
-      <div class="p-6 flex flex-col flex-grow">
-        <div class="tourney-sleek"><i class="fas fa-medal text-blue-400"></i> ${match.event_name || 'INTERNATIONAL'}</div>
-        <h3 class="title-sleek">${match.title || match.match_name || 'Match'}</h3>
-        ${teamHtml}
-        <div class="meta-light">
-          <span><i class="far fa-calendar-alt mr-1"></i>${match.startTime || 'TBD'}</span>
-          <span><i class="far fa-clock mr-1"></i>${category}</span>
-        </div>
-        <div onclick="${watchAction}" class="${watchBtnClass}">${watchIcon}</div>
-      </div>`;
-    container.appendChild(card);
-  });
-}
-
-function playStream(index) {
-  const match = allMatches[index];
-  const streamUrl = match.adfree_url || match.dai_url;
-  if (streamUrl) {
-    window.location.href = PLAYER_URL + encodeURIComponent(streamUrl);
-  } else {
-    alert('Stream not available yet — try again once the match goes LIVE.');
-  }
-}
-
-async function fetchMatches(url) {
-  // Cache-bust: raw.githubusercontent.com caches aggressively, and the whole
-  // point of the 5-minute auto-update workflow is defeated if the browser (or
-  // GitHub's CDN) keeps serving a stale copy in between visits.
-  const bustedUrl = `${url}${url.includes('?') ? '&' : '?'}_=${Date.now()}`;
-  const res = await fetch(bustedUrl, { cache: 'no-store' });
-  if (!res.ok) throw new Error(`HTTP ${res.status} fetching ${url}`);
-  return res.json();
-}
-
-async function loadMatches() {
-  try {
-    const data = await fetchMatches(PRIMARY_DATA_URL);
-    allMatches = data.matches || [];
-    renderMatches(allMatches);
-  } catch (primaryErr) {
-    console.warn('Primary feed failed, falling back to drmlive source:', primaryErr);
-    try {
-      const data = await fetchMatches(FALLBACK_DATA_URL);
-      allMatches = data.matches || [];
-      renderMatches(allMatches);
-    } catch (fallbackErr) {
-      console.error('Both feeds failed:', fallbackErr);
-      container.innerHTML = '<div class="col-span-full status-banner">Failed to load matches. Please refresh in a moment.</div>';
+    async function load(){
+      refreshEl.disabled=true; refreshEl.textContent='Refreshing…';
+      try{
+        const url=`${DATA_URL}?_=${Date.now()}`;
+        const res=await fetch(url,{cache:'no-store'});
+        if(!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data=await res.json(); render(Array.isArray(data.matches)?data.matches:[]);
+      }catch(err){
+        console.error(err);
+        eventsEl.innerHTML='<div class="state">Could not load the latest feed. Please try again shortly.</div>';
+        countEl.textContent='Feed unavailable';
+      }finally{refreshEl.disabled=false;refreshEl.textContent='↻ Refresh';}
     }
-  }
-}
-
-loadMatches();
-setInterval(loadMatches, REFRESH_INTERVAL_MS);
-
-// theme toggle
-const themeToggleBtn = document.getElementById('theme-toggle');
-const themeIcon = document.getElementById('theme-icon');
-const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-const savedTheme = localStorage.getItem('theme');
-
-function setTheme(isLight) {
-  const themeLabel = document.getElementById('theme-label');
-  if (isLight) {
-    document.body.classList.add('light-mode');
-    themeIcon.classList.remove('fa-sun');
-    themeIcon.classList.add('fa-moon');
-    themeLabel.textContent = 'Dark Mode';
-    localStorage.setItem('theme', 'light');
-  } else {
-    document.body.classList.remove('light-mode');
-    themeIcon.classList.remove('fa-moon');
-    themeIcon.classList.add('fa-sun');
-    themeLabel.textContent = 'Light Mode';
-    localStorage.setItem('theme', 'dark');
-  }
-}
-
-if (savedTheme === 'light' || (!savedTheme && prefersLight)) {
-  setTheme(true);
-} else {
-  setTheme(false);
-}
-themeToggleBtn.addEventListener('click', () => {
-  const isLightMode = document.body.classList.contains('light-mode');
-  setTheme(!isLightMode);
-});
-</script>
+    refreshEl.addEventListener('click',load); load(); setInterval(load,REFRESH_MS);
+  </script>
 </body>
 </html>
