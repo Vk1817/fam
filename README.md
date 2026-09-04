@@ -1,196 +1,194 @@
-<div align="center">
+# 🏏 CrickCast
 
-<img src="./assets/banner.svg" alt="Live Events banner" width="100%" />
+> **Simple. Live. Automatic.**
 
-# Live Events
+![CrickCast Banner](assets/banner.svg)
 
-**A clean, lightweight, automatically refreshed sports-events dashboard built with plain HTML, CSS and JavaScript.**
+CrickCast is a lightweight live-events web frontend that automatically reads the latest match data and **current live-stream URLs** from the upstream `fancode.json` feed. The project is intentionally simple: one frontend, no database, no build system, and no manually maintained stream-link list.
 
-<p>
-  <img src="https://img.shields.io/badge/HTML5-static-E34F26?style=for-the-badge&logo=html5&logoColor=white" alt="HTML5" />
-  <img src="https://img.shields.io/badge/JavaScript-vanilla-F7DF1E?style=for-the-badge&logo=javascript&logoColor=111" alt="JavaScript" />
-  <img src="https://img.shields.io/badge/build-none-111827?style=for-the-badge" alt="No build" />
-  <img src="https://img.shields.io/badge/data-live%20JSON-2563eb?style=for-the-badge" alt="Live JSON" />
-</p>
+![CrickCast Preview](assets/preview.svg)
 
-[Overview](#-overview) · [Features](#-features) · [Architecture](#-architecture) · [Setup](#-quick-start) · [Customization](#-customization) · [Disclaimer](#-disclaimer)
+## ✨ What CrickCast Does
 
-</div>
+- 🔄 **Automatic updates** — fetches the upstream JSON every 60 seconds.
+- 🔴 **Live-first listing** — currently live matches appear first.
+- 🔗 **Dynamic stream URLs** — reads `dai_url` and `adfree_url` directly from each current match record.
+- ▶️ **In-page playback** — clicking **Watch Live** opens the stream in the CrickCast player instead of sending the user to GitHub.
+- 🖼️ **Event artwork** — uses the image supplied by the feed.
+- 📱 **Responsive UI** — designed for desktop, tablet and mobile.
+- ⚡ **No build step** — plain HTML, CSS and JavaScript.
 
-## ✨ Overview
+## 🧭 Architecture
 
-Live Events is intentionally simple: there is no framework, database, build process, or application server. The single-page frontend requests the configured JSON feed directly, renders every event in the `matches` array, and refreshes automatically.
-
-<div align="center">
-<img src="./assets/preview.svg" alt="Live Events interface preview" width="100%" />
-</div>
-
-The current data source is the public `fancode.json` file in [`drmlive/fancode-live-events`](https://github.com/drmlive/fancode-live-events/blob/main/fancode.json). The feed currently exposes fields including category, match ID, title, teams, status, start time and image metadata. citeturn0view0
-
-## 🚀 Features
-
-| Feature | Description |
-|---|---|
-| 🔄 **Automatic refresh** | Re-fetches the JSON feed every 60 seconds and also provides a manual refresh button. |
-| 📡 **Live data** | Reads the latest `matches[]` array instead of maintaining a local copy. |
-| 🃏 **Responsive cards** | Simple 3-column desktop layout that collapses cleanly on tablets and phones. |
-| 🔴 **Live prioritization** | Live events are placed before upcoming events. |
-| 🖼️ **Event imagery** | Uses the image supplied by each feed record with a fallback image. |
-| 🧩 **Zero dependencies** | Plain HTML/CSS/JavaScript; no npm install and no build command. |
-| ⚡ **Static hosting friendly** | Suitable for GitHub Pages, Cloudflare Pages, Netlify or any static host. |
-| 🛡️ **No local feed storage** | The browser reads the configured source at runtime, keeping the repository lightweight. |
-
-## 🏗️ Architecture
-
-<div align="center">
-<img src="./assets/architecture.svg" alt="Live Events architecture" width="100%" />
-</div>
+![CrickCast Architecture](assets/architecture.svg)
 
 ```text
-┌──────────────────────────────┐
-│ drmlive/fancode-live-events  │
-│        fancode.json          │
-└──────────────┬───────────────┘
-               │ HTTPS fetch
-               ▼
-┌──────────────────────────────┐
-│          index.html          │
-│  fetch → parse → sort → UI   │
-└──────────────┬───────────────┘
-               │
-               ▼
-┌──────────────────────────────┐
-│       Static web hosting     │
-│ GitHub Pages / Cloudflare... │
-└──────────────────────────────┘
+┌──────────────────────────────────────────┐
+│ drmlive/fancode-live-events              │
+│ fancode.json                             │
+└─────────────────────┬────────────────────┘
+                      │
+                      │ fresh JSON request
+                      ▼
+┌──────────────────────────────────────────┐
+│                 CrickCast                │
+│                 index.html                │
+└─────────────────────┬────────────────────┘
+                      │
+             ┌────────┴─────────┐
+             │                  │
+             ▼                  ▼
+       Match information   dai_url / adfree_url
+                                │
+                                ▼
+                         Browser HLS player
 ```
 
-### Refresh behavior
+The important point is that **stream URLs are not hard-coded into CrickCast**. Each page load and automatic refresh retrieves the latest values supplied by the upstream JSON.
 
-- Initial fetch happens when the page loads.
-- A cache-busting query parameter is added to each request.
-- The browser requests the latest feed with `cache: "no-store"`.
-- The page refreshes the event list every **60 seconds**.
-- A manual **Refresh** button is available at any time.
+## 🔗 Upstream Data Source
+
+Default source:
+
+```text
+https://raw.githubusercontent.com/drmlive/fancode-live-events/main/fancode.json
+```
+
+The feed contains a `matches` array. A live match can include fields such as:
+
+```json
+{
+  "match_id": "...",
+  "match_name": "Team A vs Team B",
+  "team_1": "Team A",
+  "team_2": "Team B",
+  "status": "LIVE",
+  "src": "https://.../image.jpg",
+  "dai_url": "https://.../1080p.m3u8?...",
+  "adfree_url": "https://.../1080p.m3u8?..."
+}
+```
+
+### Stream selection
+
+For every match, CrickCast builds its stream candidates from:
+
+1. `dai_url`
+2. `adfree_url`
+
+The first available URL is used. If the first source cannot be played, the player attempts the next available candidate.
+
+Because these URLs can be signed and time-limited, CrickCast fetches them dynamically instead of storing old copies in the repository.
 
 ## 📁 Project Structure
 
 ```text
-fam/
-├── index.html              # Complete frontend: UI + data fetching + refresh logic
-├── README.md               # Project documentation
-├── LICENSE                 # Repository license
-└── assets/
-    ├── banner.svg          # README hero banner
-    ├── architecture.svg    # Architecture diagram
-    └── preview.svg         # README UI preview
+CrickCast/
+├── index.html                 # Complete frontend, feed loader and HLS player
+├── assets/
+│   ├── banner.svg             # README hero artwork
+│   ├── architecture.svg      # Architecture diagram
+│   └── preview.svg            # Product/UI preview
+├── LICENSE
+└── README.md
 ```
 
-The previous standalone player page and edge proxy are intentionally not included in this simplified version because the project is focused on **displaying the live event feed**, not implementing a separate streaming/proxy layer.
+The project deliberately contains **no separate player page and no server-side proxy**. The browser receives the current stream URL directly from the live JSON feed.
 
-## 🧰 Tech Stack
+## ▶️ Playback
 
-- **HTML5** — document structure
-- **CSS3** — responsive UI and visual design
-- **Vanilla JavaScript** — feed retrieval, parsing and rendering
-- **GitHub raw content** — runtime JSON source
-- **Static hosting** — deployment target
+The frontend uses [HLS.js](https://github.com/video-dev/hls.js) where Media Source Extensions are required and native HLS playback where the browser supports it.
 
-No React, Node.js, npm, bundler, database or server-side API is required.
+Playback flow:
 
-## ⚡ Quick Start
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/<your-username>/<your-repository>.git
-cd <your-repository>
+```text
+User clicks Watch Live
+        ↓
+Current match object
+        ↓
+Read dai_url
+        ↓
+Fallback to adfree_url if necessary
+        ↓
+HLS.js / native HLS
+        ↓
+CrickCast video player
 ```
 
-### 2. Open locally
+If a stream cannot play, the UI reports that the upstream URL may have expired or may not be available to the browser.
 
-You can serve it with any static HTTP server. For example:
+> **Important:** Use only streams that you are authorized to access, display, or redistribute. CrickCast does not attempt to bypass DRM, authentication, paywalls, or other access controls.
 
-```bash
-python -m http.server 8000
-```
+## 🚀 Deployment
 
-Then open `http://localhost:8000`.
+CrickCast is a static website and can be deployed to any static hosting platform.
 
-### 3. Deploy
+### GitHub Pages / Cloudflare Pages / Netlify
 
-Upload the repository to your preferred static host. There is **no build command** and no environment configuration required for the default feed URL.
+1. Push the project to your repository.
+2. Select the repository in your hosting provider.
+3. Use the project root as the publishing directory.
+4. No build command is required.
+5. Deploy.
 
-## ⚙️ Customization
+## 🔧 Configuration
 
-The important configuration is at the top of the script in `index.html`:
+At the top of `index.html`:
 
 ```js
 const DATA_URL = 'https://raw.githubusercontent.com/drmlive/fancode-live-events/main/fancode.json';
-const REFRESH_MS = 60_000;
+const REFRESH_MS = 60000;
 ```
 
-To use another compatible JSON feed, replace `DATA_URL`. The frontend expects an object shaped approximately like:
+`DATA_URL` controls the upstream JSON source and `REFRESH_MS` controls the automatic refresh interval.
 
-```json
-{
-  "matches": [
-    {
-      "event_category": "Cricket",
-      "match_id": "example",
-      "match_name": "Team A vs Team B",
-      "event_name": "Example League",
-      "src": "https://example.com/image.jpg",
-      "team_1": "Team A",
-      "team_2": "Team B",
-      "status": "LIVE",
-      "startTime": "02:30:00 PM 04-09-2026"
-    }
-  ]
-}
-```
+## 🧪 Troubleshooting
 
-You can also change `REFRESH_MS` to control how often the page checks for updates.
+### Matches load but the player does not start
 
-## 🖼️ README Visuals
+Check:
 
-The repository intentionally keeps only three lightweight SVG graphics for documentation:
+- the match is currently marked `LIVE`;
+- the current JSON record contains `dai_url` or `adfree_url`;
+- the signed stream URL has not expired;
+- the upstream CDN permits playback from the browser;
+- the browser console does not report a CORS, network, or HLS error.
 
-1. **Banner** — project identity and hero section.
-2. **Architecture** — explains the runtime data flow.
-3. **Preview** — gives visitors a quick visual understanding of the interface.
+### The site shows old matches
 
-They are stored locally so the README remains visually consistent even if an external image host changes.
+Use **Refresh**. CrickCast also performs an automatic refresh every 60 seconds and uses a cache-busting request so it does not intentionally retain an old JSON response.
 
-## 🔒 Data & Responsible Use
+### The URL works elsewhere but not in CrickCast
 
-This project is a frontend data-display example. It does not host a copy of the upstream JSON feed and does not provide an application server or proxy for third-party media.
+The browser may be enforcing the source server's CORS policy or another playback restriction. CrickCast does not circumvent those controls.
 
-The upstream repository is independently maintained. Its current `fancode.json` file is publicly visible on GitHub and contains the event records used by the frontend. citeturn0view0
+## 🎨 Design
 
-Use upstream data and associated media only in accordance with the source provider's terms, applicable copyright rules, and any relevant licensing or authorization.
+CrickCast uses a compact dark sports interface with:
 
-## 🗺️ Roadmap
+- strong CrickCast branding;
+- live-status badges;
+- match artwork;
+- responsive event cards;
+- an integrated video modal; and
+- minimal controls for a fast viewing experience.
 
-- [ ] Search events
-- [ ] Filter by sport/category
-- [ ] Filter Live / Upcoming
-- [ ] Event sorting options
-- [ ] Optional dark/light theme switch
-- [ ] Configurable refresh interval
-- [ ] Last-updated timestamp from the feed
+![CrickCast UI](assets/preview.svg)
+
+## 🛠️ Technology
+
+- HTML5
+- CSS3
+- Vanilla JavaScript
+- HLS.js
+- GitHub-hosted JSON feed
 
 ## 📄 License
 
-See [`LICENSE`](./LICENSE) for the repository's license terms.
+See [`LICENSE`](LICENSE) for the applicable license terms.
 
 ## 🙌 Credits
 
-- Data source: [`drmlive/fancode-live-events`](https://github.com/drmlive/fancode-live-events)
-- Frontend: plain HTML, CSS and JavaScript
+CrickCast is a lightweight frontend project built around a dynamically supplied live-events JSON feed.
 
-<div align="center">
-
-**Simple code. Fresh data. No unnecessary infrastructure.**
-
-</div>
+**CrickCast — Simple. Live. Automatic.**
