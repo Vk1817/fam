@@ -213,11 +213,21 @@ html, body {
 
 <script>
 const queryParams = new URLSearchParams(window.location.search);
+const encodedData = queryParams.get('data');
 const rawUrl = queryParams.get('url');
+
+let streamSource = rawUrl;
+if (encodedData) {
+  try {
+    streamSource = decodeURIComponent(escape(atob(encodedData)));
+  } catch (e) {
+    try { streamSource = atob(encodedData); } catch (err) { console.error('Invalid stream data:', err); }
+  }
+}
 
 // Proxy base for CORS bypass
 const PROXY_BASE = '/api/proxy?u=';
-const url = rawUrl ? PROXY_BASE + encodeURIComponent(rawUrl) : null;
+const url = streamSource ? PROXY_BASE + encodeURIComponent(streamSource) : null;
 
 const channelstreamInfo = {
   streamUrl: url,
