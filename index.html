@@ -224,6 +224,16 @@ body {
   font-size: 0.95rem;
   color: var(--meta-color);
 }
+
+#qualityModal{position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:9999}
+#qualityModal.hidden{display:none}
+#qualityModal .modal-content{width:90%;max-width:380px;background:var(--modal-bg);border:1px solid var(--header-border);border-radius:20px;padding:22px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.6)}
+#qualityModal h2{font-size:20px;font-weight:700;margin-bottom:18px;color:var(--text-color)}
+#qualityList{display:flex;flex-direction:column;gap:10px}
+.quality-item{background:var(--quality-btn-bg);border:1px solid var(--quality-btn-border);border-radius:12px;padding:14px 16px;font-size:16px;font-weight:600;color:var(--text-color);display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:.2s}
+.quality-item::after{content:"›";font-size:20px;opacity:.7}
+.quality-item:hover{background:var(--quality-btn-hover);transform:translateY(-1px)}
+#qualityModal .btn{margin-top:16px;background:#ef4444;color:white;border:none;border-radius:10px;padding:10px 18px;font-size:14px;font-weight:600;cursor:pointer}
 </style>
 
 <script src="https://pl31464107.profitableratecpmnetwork.com/4c/0d/d7/4c0dd798d742e1afef44d28d552661f9.js"></script>
@@ -254,35 +264,57 @@ body {
 </div>
 
 <div id="matches-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+<div id="qualityModal" class="hidden">
+  <div class="modal-content">
+    <h2>Select Quality</h2>
+    <div id="qualityList"></div>
+    <button onclick="closeQuality()" class="btn">Close</button>
+  </div>
+</div>
 
 <script>
-// ── CONFIG ────────────────────────────────────────────────────────────
-// Primary source: Pranav's own auto-updated mirror (5-min cron via GitHub Actions).
-// Falls back to the upstream drmlive feed directly if the mirror is ever unreachable,
-// so the site never goes fully blank just because one raw file 404s or the Action
-// hasn't run yet.
-const PRIMARY_DATA_URL = "https://raw.githubusercontent.com/Vk1817/Fancode_autoupdate/main/pranav.json";
-const FALLBACK_DATA_URL = "https://raw.githubusercontent.com/drmlive/fancode-live-events/main/fancode.json";
-const PLAYER_URL = "/fc-play?url=";
-const REFRESH_INTERVAL_MS = 60 * 1000; // re-check every minute so LIVE badges/streams update themselves
+// ── CRICKCAST FANCODE CONFIG ─────────────────────────────────────────
+const DATA_URL = "https://raw.githubusercontent.com/sayanpal514-hue/FANCODE-AUTO-UPDATED-PLAYLIST/refs/heads/main/fancode.json";
+const PLAYER_URL = "/fc-play.html?data=";
+const REFRESH_INTERVAL_MS = 60 * 1000;
 
-const container = document.getElementById('matches-container');
+const container = document.getElementById("matches-container");
 let allMatches = [];
 
-function renderMatches(matches) {
-  container.innerHTML = '';
+function formatDate(time) {
+  if (!time) return "TBD";
+  const parts = time.match(/(\d{2}):(\d{2}):(\d{2})\s*(AM|PM)\s*(\d{2})-(\d{2})-(\d{4})/i);
+  if (parts) {
+    let [, hh, mm, ss, ampm, dd, mo, yyyy] = parts;
+    hh = parseInt(hh, 10);
+    if (ampm.toUpperCase() === "PM" && hh < 12) hh += 12;
+    if (ampm.toUpperCase() === "AM" && hh === 12) hh = 0;
+    const d = new Date(yyyy, parseInt(mo, 10)-1, parseInt(dd, 10), hh, parseInt(mm, 10), parseInt(ss, 10));
+    return d.toLocaleString("en-IN", {day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"});
+  }
+  const d = new Date(time);
+  return isNaN(d) ? time : d.toLocaleString("en-IN", {day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"});
+}
 
+function getEnglishStreams(match) {
+  return match.auto_streams && match.auto_streams.ENGLISH && match.auto_streams.ENGLISH.streams;
+}
+
+function renderMatches(matches) {
+  container.innerHTML = "";
   if (!matches.length) {
     container.innerHTML = '<div class="col-span-full status-banner">No matches in the feed right now.</div>';
     return;
   }
 
   matches.forEach((match, idx) => {
-    const isLive = match.status === 'LIVE';
-    const imageSrc = match.src || 'https://www.fancode.com/skillup-uploads/cms-media/Cricket_Fallback_Old_match-card.jpg';
-    const category = match.event_category || 'Sports';
+    const isLive = (match.status || "").toUpperCase() === "LIVE";
+    const imageSrc = match.image || "https://www.fancode.com/skillup-uploads/cms-media/Cricket_Fallback_Old_match-card.jpg";
+    const category = match.event_category || "Sports";
+    const streams = getEnglishStreams(match);
+    const hasStream = !!(streams && Object.keys(streams).length);
 
-    let teamHtml = '';
+    let teamHtml = "";
     if (match.team_1 && match.team_2) {
       teamHtml = `
         <div class="flag-strip">
@@ -292,72 +324,78 @@ function renderMatches(matches) {
         </div>`;
     }
 
-    // A match only actually has something to play if it's LIVE *and* carries a
-    // real stream URL. Missing either of these means "structure only" — the
-    // exact case that used to render a dead WATCH LIVE button.
-    const hasStream = isLive && (match.adfree_url || match.dai_url);
-    const watchAction = hasStream ? `playStream(${idx})` : '';
-    const watchBtnClass = hasStream ? 'watch-sleek' : 'watch-sleek not-live';
-    const watchIcon = isLive
-      ? (hasStream ? '<i class="fas fa-play-circle"></i> WATCH LIVE' : '<i class="fas fa-lock"></i> NO STREAM YET')
+    const playable = isLive && hasStream;
+    const watchClass = playable ? "watch-sleek" : "watch-sleek not-live";
+    const watchText = isLive
+      ? (hasStream ? '<i class="fas fa-play-circle"></i> WATCH LIVE' : '<i class="fas fa-lock"></i> STREAM NOT AVAILABLE')
       : '<i class="fas fa-hourglass-half"></i> UPCOMING';
 
-    const card = document.createElement('div');
-    card.className = 'sleek-card';
+    const card = document.createElement("div");
+    card.className = "sleek-card";
     card.innerHTML = `
       <div class="sleek-image">
         <img src="${imageSrc}" alt="match cover" loading="lazy" onerror="this.src='https://www.fancode.com/skillup-uploads/cms-media/Cricket_Fallback_Old_match-card.jpg'">
         ${isLive ? '<span class="live-glow"><i class="fas fa-circle text-[0.5rem] mr-1 align-middle"></i> LIVE</span>' : ''}
       </div>
       <div class="p-6 flex flex-col flex-grow">
-        <div class="tourney-sleek"><i class="fas fa-medal text-blue-400"></i> ${match.event_name || 'INTERNATIONAL'}</div>
-        <h3 class="title-sleek">${match.title || match.match_name || 'Match'}</h3>
+        <div class="tourney-sleek"><i class="fas fa-medal text-blue-400"></i> ${match.tournament || match.event_name || "FANCODE"}</div>
+        <h3 class="title-sleek">${match.title || match.match_name || "Match"}</h3>
         ${teamHtml}
         <div class="meta-light">
-          <span><i class="far fa-calendar-alt mr-1"></i>${match.startTime || 'TBD'}</span>
+          <span><i class="far fa-calendar-alt mr-1"></i>${formatDate(match.startTime)}</span>
           <span><i class="far fa-clock mr-1"></i>${category}</span>
         </div>
-        <div onclick="${watchAction}" class="${watchBtnClass}">${watchIcon}</div>
+        <div class="${watchClass}" ${playable ? `onclick="openQuality(${idx})"` : ""}>${watchText}</div>
       </div>`;
     container.appendChild(card);
   });
 }
 
-function playStream(index) {
+function openQuality(index) {
   const match = allMatches[index];
-  const streamUrl = match.adfree_url || match.dai_url;
-  if (streamUrl) {
-    window.location.href = PLAYER_URL + encodeURIComponent(streamUrl);
-  } else {
-    alert('Stream not available yet — try again once the match goes LIVE.');
+  const streams = getEnglishStreams(match);
+  if (!streams || !Object.keys(streams).length) {
+    alert("Stream not available");
+    return;
   }
+
+  const list = document.getElementById("qualityList");
+  list.innerHTML = "";
+  const order = ["1080p","720p","540p","480p","360p","240p"];
+  const sortedKeys = Object.keys(streams).sort((a,b) => {
+    const ai = order.indexOf(a), bi = order.indexOf(b);
+    return (bi === -1 ? -1 : bi) - (ai === -1 ? -1 : ai);
+  });
+
+  sortedKeys.forEach(q => {
+    const btn = document.createElement("div");
+    btn.className = "quality-item";
+    btn.innerText = q;
+    btn.onclick = () => {
+      const encoded = btoa(unescape(encodeURIComponent(streams[q])));
+      window.location.href = PLAYER_URL + encodeURIComponent(encoded);
+    };
+    list.appendChild(btn);
+  });
+  document.getElementById("qualityModal").classList.remove("hidden");
 }
 
-async function fetchMatches(url) {
-  // Cache-bust: raw.githubusercontent.com caches aggressively, and the whole
-  // point of the 5-minute auto-update workflow is defeated if the browser (or
-  // GitHub's CDN) keeps serving a stale copy in between visits.
-  const bustedUrl = `${url}${url.includes('?') ? '&' : '?'}_=${Date.now()}`;
-  const res = await fetch(bustedUrl, { cache: 'no-store' });
-  if (!res.ok) throw new Error(`HTTP ${res.status} fetching ${url}`);
-  return res.json();
+function closeQuality() {
+  document.getElementById("qualityModal").classList.add("hidden");
 }
 
 async function loadMatches() {
   try {
-    const data = await fetchMatches(PRIMARY_DATA_URL);
+    const busted = DATA_URL + "?_=" + Date.now();
+    const res = await fetch(busted, {cache:"no-store"});
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
     allMatches = data.matches || [];
+    allMatches.sort((a,b) => ((b.status || "").toUpperCase() === "LIVE") - ((a.status || "").toUpperCase() === "LIVE"));
     renderMatches(allMatches);
-  } catch (primaryErr) {
-    console.warn('Primary feed failed, falling back to drmlive source:', primaryErr);
-    try {
-      const data = await fetchMatches(FALLBACK_DATA_URL);
-      allMatches = data.matches || [];
-      renderMatches(allMatches);
-    } catch (fallbackErr) {
-      console.error('Both feeds failed:', fallbackErr);
-      container.innerHTML = '<div class="col-span-full status-banner">Failed to load matches. Please refresh in a moment.</div>';
-    }
+  } catch (err) {
+    console.error("Failed to load FanCode feed:", err);
+    if (!allMatches.length) container.innerHTML = '<div class="col-span-full status-banner">Failed to load matches. Please refresh in a moment.</div>';
   }
 }
 
@@ -365,37 +403,30 @@ loadMatches();
 setInterval(loadMatches, REFRESH_INTERVAL_MS);
 
 // theme toggle
-const themeToggleBtn = document.getElementById('theme-toggle');
-const themeIcon = document.getElementById('theme-icon');
-const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-const savedTheme = localStorage.getItem('theme');
+const themeToggleBtn = document.getElementById("theme-toggle");
+const themeIcon = document.getElementById("theme-icon");
+const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+const savedTheme = localStorage.getItem("theme");
 
 function setTheme(isLight) {
-  const themeLabel = document.getElementById('theme-label');
+  const themeLabel = document.getElementById("theme-label");
   if (isLight) {
-    document.body.classList.add('light-mode');
-    themeIcon.classList.remove('fa-sun');
-    themeIcon.classList.add('fa-moon');
-    themeLabel.textContent = 'Dark Mode';
-    localStorage.setItem('theme', 'light');
+    document.body.classList.add("light-mode");
+    themeIcon.classList.remove("fa-sun");
+    themeIcon.classList.add("fa-moon");
+    themeLabel.textContent = "Dark Mode";
+    localStorage.setItem("theme", "light");
   } else {
-    document.body.classList.remove('light-mode');
-    themeIcon.classList.remove('fa-moon');
-    themeIcon.classList.add('fa-sun');
-    themeLabel.textContent = 'Light Mode';
-    localStorage.setItem('theme', 'dark');
+    document.body.classList.remove("light-mode");
+    themeIcon.classList.remove("fa-moon");
+    themeIcon.classList.add("fa-sun");
+    themeLabel.textContent = "Light Mode";
+    localStorage.setItem("theme", "dark");
   }
 }
-
-if (savedTheme === 'light' || (!savedTheme && prefersLight)) {
-  setTheme(true);
-} else {
-  setTheme(false);
-}
-themeToggleBtn.addEventListener('click', () => {
-  const isLightMode = document.body.classList.contains('light-mode');
-  setTheme(!isLightMode);
-});
+if (savedTheme === "light" || (!savedTheme && prefersLight)) setTheme(true);
+else setTheme(false);
+themeToggleBtn.addEventListener("click", () => setTheme(!document.body.classList.contains("light-mode")));
 </script>
 
 <script src="https://pl31464108.profitableratecpmnetwork.com/ec/b8/a5/ecb8a5fb42645ee3fc693ae000978c3d.js"></script>
