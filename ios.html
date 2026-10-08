@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css"/>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.polyfilled.js"></script>
-  <script src="https://pl31467926.profitableratecpmnetwork.com/4e/25/e4/4e25e45556a54a50d1c66d2d232b2c61.js"></script>
+<script src="https://pl31464107.profitableratecpmnetwork.com/4c/0d/d7/4c0dd798d742e1afef44d28d552661f9.js"></script>
   <style>
     :root {
       --bg: #0b0e1a;
@@ -606,7 +606,8 @@ var AD_TIMEOUT = 8000;
 
 /* ═══ SOURCE ═══ */
 var M3U_URL    = "https://raw.githubusercontent.com/drmlive/fancode-live-events/refs/heads/main/fancode.m3u";
-var PROXY_BASE = "https://sportlink-fancode10.pages.dev/api/proxy?u=";
+var PROXY_BASE = "https://crickcast-fam.pages.dev/api/proxy?u=";
+var BACKUP_PROXY_BASE = "https://sportlink-fancode10.pages.dev/api/proxy?u=";
 
 /* ═══ DOM ═══ */
 var $overlay   = document.getElementById("overlay");
@@ -673,10 +674,11 @@ function hideOverlay(){ if($overlay) $overlay.style.display = "none"; }
 function getChId(){ return new URLSearchParams(location.search).get("id") || ""; }
 
 // ── PROXY ──
-function proxyUrl(url){
+function proxyUrl(url, useBackup){
   if(!url) return url;
-  if(url.indexOf(PROXY_BASE) === 0) return url;
-  return PROXY_BASE + encodeURIComponent(url);
+  var base = useBackup ? BACKUP_PROXY_BASE : PROXY_BASE;
+  if(url.indexOf(PROXY_BASE) === 0 || url.indexOf(BACKUP_PROXY_BASE) === 0) return url;
+  return base + encodeURIComponent(url);
 }
 
 // ── PARSE M3U ──
@@ -732,12 +734,20 @@ function parseM3U(text){
 
 // ── LOAD ──
 async function loadData(){
-  var r = await fetch(proxyUrl(M3U_URL), {cache:"no-store"});
-  if(!r.ok) throw new Error("HTTP " + r.status);
-  var text = await r.text();
-  var ch = parseM3U(text).filter(function(c){ return c.stream_url; });
-  if(!ch.length) throw new Error("No channels found");
-  return ch;
+  var lastError = null;
+  for(var attempt = 0; attempt < 2; attempt++){
+    try{
+      var r = await fetch(proxyUrl(M3U_URL, attempt === 1), {cache:"no-store"});
+      if(!r.ok) throw new Error("HTTP " + r.status);
+      var text = await r.text();
+      var ch = parseM3U(text).filter(function(c){ return c.stream_url; });
+      if(!ch.length) throw new Error("No channels found");
+      return ch;
+    }catch(e){
+      lastError = e;
+    }
+  }
+  throw lastError || new Error("Proxy connection failed");
 }
 
 // ── FILTERS ──
@@ -983,12 +993,40 @@ function playAdThenContent(url, name, token){
 function startStream(url, token){
   if(token !== playToken) return;
 
-  var playUrl = proxyUrl(url);
+  var usingBackupProxy = false;
+  var playUrl = proxyUrl(url, false);
   var opts = {
     controls:['play','progress','current-time','mute','volume','captions','settings','fullscreen'],
     settings:['quality'], autoplay:true, muted:true
   };
   var isM3U8 = /\.m3u8(\?|$)/i.test(url) || url.indexOf('.m3u8') !== -1;
+
+  function startStreamWithProxy(originalUrl, tokenValue, useBackup){
+    if(tokenValue !== playToken) return;
+    var fallbackUrl = proxyUrl(originalUrl, useBackup);
+    var fallbackHls = new Hls({
+      autoStartLoad:true, enableWorker:true, lowLatencyMode:true,
+      backbufferLength:30, manifestLoadingTimeOut:20000, manifestLoadingMaxRetry:3,
+      levelLoadingTimeOut:20000, fragLoadingTimeOut:30000
+    });
+    currentHls = fallbackHls;
+    fallbackHls.loadSource(fallbackUrl);
+    fallbackHls.attachMedia($video);
+    fallbackHls.on(Hls.Events.MANIFEST_PARSED, function(){
+      if(tokenValue !== playToken) return;
+      try {
+        if(!currentPlayer) currentPlayer = new Plyr($video, opts);
+        var p = $video.play();
+        if(p && p.catch) p.catch(function(){});
+        hideOverlay();
+        toast('● Live','ok',3000);
+      } catch(e){}
+    });
+    fallbackHls.on(Hls.Events.ERROR, function(_, err){
+      if(tokenValue !== playToken || !err.fatal) return;
+      toast('Connection error','err',3000);
+    });
+  }
 
   function startPlayback(){
     if(token !== playToken) return;
@@ -1066,9 +1104,21 @@ function startStream(url, token){
         retryTmr = null;
         if(token !== playToken) return;
         try {
-          if(data.type === Hls.ErrorTypes.NETWORK_ERROR) hls.startLoad();
+          if(data.type === Hls.ErrorTypes.NETWORK_ERROR){
+            if(!usingBackupProxy){
+              usingBackupProxy = true;
+              try { hls.destroy(); } catch(e){}
+              currentHls = null;
+              startStreamWithProxy(url, token, true);
+            } else {
+              hls.startLoad();
+            }
+          }
           else if(data.type === Hls.ErrorTypes.MEDIA_ERROR) hls.recoverMediaError();
-          else { destroyPlayer(); setupHLSPlayer(url, ''); }
+          else {
+            destroyPlayer();
+            setupHLSPlayer(url, '');
+          }
         } catch(e){
           destroyPlayer(); setupHLSPlayer(url, '');
         }
@@ -1201,6 +1251,8 @@ document.addEventListener('DOMContentLoaded', main);
   });
 })();
 </script>
-<script src="https://pl31467927.profitableratecpmnetwork.com/f5/ea/dd/f5eadd2d3e0fe1f26f2b1d6c0b7f9167.js"></script>
+
+<script src="https://pl31464108.profitableratecpmnetwork.com/ec/b8/a5/ecb8a5fb42645ee3fc693ae000978c3d.js"></script>
+
 </body>
 </html>
